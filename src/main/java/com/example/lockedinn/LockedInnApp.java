@@ -30,8 +30,8 @@ public class LockedInnApp extends Application {
         launch(args);
     }
 }
-module org.openjfx.triumvirateeoy {
-    requires javafx.controls;
-    requires javafx.fxml;
-    exports com.example.lockedinn;
-}
+//module org.openjfx.triumvirateeoy {
+//    requires javafx.controls;
+//    requires javafx.fxml;
+//    exports com.example.lockedinn;
+//}
