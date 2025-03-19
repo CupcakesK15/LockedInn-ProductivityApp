@@ -7,4 +7,7 @@ module org.openjfx.triumvirateeoy5 {
 
     opens org.openjfx.triumvirateeoy5 to javafx.fxml;
     exports org.openjfx.triumvirateeoy5;
+
+    opens com.example.lockedinn to javafx.fxml;
+    exports com.example.lockedinn;
 }
