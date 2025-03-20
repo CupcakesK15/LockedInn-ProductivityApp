@@ -14,13 +14,12 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class LockedInnApp extends Application {
 
     HashMap<String, Color> subjects = new HashMap<>();
-    Popup subjectCreation;
-    TextField subjectNameField;
-    ColorPicker colorPicker;
+    HashSet<Color> colors = new HashSet<>();
     Stage primaryStage;
 
     @Override
@@ -39,19 +38,6 @@ public class LockedInnApp extends Application {
         buttonPanel.getChildren().add(createSubjectLabel);
 
         GridPane assignmentPanel = new GridPane();
-
-        subjectCreation = new Popup();
-        HBox subjectPanel = new HBox(30);
-        subjectPanel.setPadding(new Insets(5));
-        subjectPanel.setBackground(new Background(new BackgroundFill(Color.SPRINGGREEN, CornerRadii.EMPTY, Insets.EMPTY)));
-        Label subjectPromptLabel = new Label("Subject Name:");
-        subjectNameField = new TextField();
-        Label colorPromptLabel = new Label("Pick a Color:");
-        colorPicker = new ColorPicker();
-        Button finishSubjectButton = new Button("Finish");
-        finishSubjectButton.setOnAction(event -> closeSubjectCreation());
-        subjectPanel.getChildren().addAll(subjectPromptLabel, subjectNameField, colorPromptLabel, colorPicker, finishSubjectButton);
-        subjectCreation.getContent().add(subjectPanel);
 
         Scene scene = new Scene(buttonPanel, 400, 200);
         primaryStage.setScene(scene);
@@ -122,17 +108,28 @@ public class LockedInnApp extends Application {
     }
 
     private void subjectLabelCreation() {
+        Popup subjectCreation = new Popup();
+        HBox subjectPanel = new HBox(30);
+        subjectPanel.setPadding(new Insets(5));
+        subjectPanel.setBackground(new Background(new BackgroundFill(Color.SPRINGGREEN, CornerRadii.EMPTY, Insets.EMPTY)));
+        Label subjectPromptLabel = new Label("Subject Name:");
+        TextField subjectNameField = new TextField();
+        Label colorPromptLabel = new Label("Pick a Color:");
+        ColorPicker colorPicker = new ColorPicker();
+        Button finishSubjectButton = new Button("Finish");
+        finishSubjectButton.setOnAction(event -> {
+            String temp = subjectNameField.getText();
+            subjectNameField.setText("");
+            Color color = colorPicker.getValue();
+            colorPicker.setValue(Color.WHITE);
+            subjects.put(temp, color);
+            colors.add(color);
+            System.out.println("Subjects updated: " + subjects);
+            subjectCreation.hide();
+        });
+        subjectPanel.getChildren().addAll(subjectPromptLabel, subjectNameField, colorPromptLabel, colorPicker, finishSubjectButton);
+        subjectCreation.getContent().add(subjectPanel);
         subjectCreation.show(primaryStage);
-    }
-
-    private void closeSubjectCreation() {
-        String temp = subjectNameField.getText();
-        subjectNameField.setText("");
-        Color color = colorPicker.getValue();
-        colorPicker.setValue(Color.WHITE);
-        subjects.put(temp, color);
-        subjectCreation.hide();
-        System.out.println("Subjects updated: " + subjects);
     }
 
     public static void main(String[] args) {
