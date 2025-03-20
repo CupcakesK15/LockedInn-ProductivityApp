@@ -36,9 +36,7 @@ public class LockedInnApp extends Application {
         buttonPanel.setStyle("-fx-padding: 10;");
         buttonPanel.getChildren().add(createAssignmentButton);
         buttonPanel.getChildren().add(createSubjectLabel);
-
-        GridPane assignmentPanel = new GridPane();
-
+        
         Scene scene = new Scene(buttonPanel, 400, 200);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Locked Inn - Assignment Tracker");
