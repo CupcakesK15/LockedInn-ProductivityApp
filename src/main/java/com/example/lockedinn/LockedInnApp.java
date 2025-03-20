@@ -1,9 +1,8 @@
 package com.example.lockedinn;
 
 import javafx.application.Application;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
@@ -35,23 +34,20 @@ public class LockedInnApp extends Application {
         createSubjectLabel.setOnAction(event -> subjectLabelCreation());
 
         VBox layout = new VBox(15);
-        layout.setStyle("-fx-padding: 20;");
-        layout.getChildren().add(createAssignmentButton);
-        layout.getChildren().add(createSubjectLabel);
+        layout.setPadding(new Insets(20));
+        layout.getChildren().addAll(createAssignmentButton, createSubjectLabel);
 
         subjectCreation = new Popup();
         HBox subjectPanel = new HBox(30);
-        subjectPanel.setStyle("-fx-padding: 5;");
+        subjectPanel.setPadding(new Insets(5));
         subjectPanel.setBackground(new Background(new BackgroundFill(Color.SPRINGGREEN, CornerRadii.EMPTY, Insets.EMPTY)));
-        Label subjectPromptLabel = new Label("Subject Name: ");
+        Label subjectPromptLabel = new Label("Subject Name:");
         subjectNameField = new TextField();
-        Label colorPromptLabel = new Label("Pick a Color: ");
+        Label colorPromptLabel = new Label("Pick a Color:");
         colorPicker = new ColorPicker();
         Button finishSubjectButton = new Button("Finish");
         finishSubjectButton.setOnAction(event -> closeSubjectCreation());
-        subjectPanel.getChildren().addAll(subjectPromptLabel, subjectNameField);
-        subjectPanel.getChildren().addAll(colorPromptLabel, colorPicker);
-        subjectPanel.getChildren().add(finishSubjectButton);
+        subjectPanel.getChildren().addAll(subjectPromptLabel, subjectNameField, colorPromptLabel, colorPicker, finishSubjectButton);
         subjectCreation.getContent().add(subjectPanel);
 
         Scene scene = new Scene(layout, 400, 200);
@@ -61,7 +57,65 @@ public class LockedInnApp extends Application {
     }
 
     private void openAssignmentCreationDialog() {
-        // Implementation for dialog...
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle("Create Assignment");
+
+        Label headerLabel = new Label("Enter Assignment Details");
+        headerLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+
+        GridPane grid = new GridPane();
+        grid.setPadding(new Insets(20));
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setAlignment(Pos.CENTER);
+
+        Label nameLabel = new Label("Assignment Name:");
+        TextField nameField = new TextField();
+        grid.add(nameLabel, 0, 0);
+        grid.add(nameField, 1, 0);
+
+        Label startLabel = new Label("Start Point:");
+        TextField startField = new TextField();
+        grid.add(startLabel, 0, 1);
+        grid.add(startField, 1, 1);
+
+        Label finishLabel = new Label("Finish Point:");
+        TextField finishField = new TextField();
+        grid.add(finishLabel, 0, 2);
+        grid.add(finishField, 1, 2);
+
+        Label progressLabel = new Label("Progress:");
+        TextField progressField = new TextField();
+        grid.add(progressLabel, 0, 3);
+        grid.add(progressField, 1, 3);
+
+        Button saveButton = new Button("Save Assignment");
+        saveButton.setOnAction(event -> {
+            String assignmentName = nameField.getText();
+            String startPoint = startField.getText();
+            String finishPoint = finishField.getText();
+            String progress = progressField.getText();
+
+            System.out.println("Assignment Created:");
+            System.out.println("Name: " + assignmentName);
+            System.out.println("Start: " + startPoint);
+            System.out.println("Finish: " + finishPoint);
+            System.out.println("Progress: " + progress);
+
+            dialogStage.close();
+        });
+        grid.add(saveButton, 0, 4, 2, 1);
+        GridPane.setMargin(saveButton, new Insets(10, 0, 0, 0));
+        saveButton.setMaxWidth(Double.MAX_VALUE);
+
+        VBox dialogLayout = new VBox(10);
+        dialogLayout.setPadding(new Insets(20));
+        dialogLayout.getChildren().addAll(headerLabel, grid);
+
+        Scene dialogScene = new Scene(dialogLayout, 350, 300);
+        dialogStage.setScene(dialogScene);
+        dialogStage.initOwner(primaryStage);
+        dialogStage.show();
     }
 
     private void subjectLabelCreation() {
@@ -75,15 +129,10 @@ public class LockedInnApp extends Application {
         colorPicker.setValue(Color.WHITE);
         subjects.put(temp, color);
         subjectCreation.hide();
-        System.out.println(subjects);
+        System.out.println("Subjects updated: " + subjects);
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 }
-//module org.openjfx.triumvirateeoy {
-//    requires javafx.controls;
-//    requires javafx.fxml;
-//    exports com.example.lockedinn;
-//}
