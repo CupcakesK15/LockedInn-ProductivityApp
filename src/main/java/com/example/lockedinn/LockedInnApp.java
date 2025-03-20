@@ -28,16 +28,18 @@ public class LockedInnApp extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
+
         Button createAssignmentButton = new Button("Create Assignment");
         createAssignmentButton.setOnAction(event -> openAssignmentCreationDialog());
-
         Button createSubjectLabel = new Button("Create Subject Label");
         createSubjectLabel.setOnAction(event -> subjectLabelCreation());
 
-        VBox layout = new VBox(15);
-        layout.setStyle("-fx-padding: 20;");
-        layout.getChildren().add(createAssignmentButton);
-        layout.getChildren().add(createSubjectLabel);
+        HBox buttonPanel = new HBox(15);
+        buttonPanel.setStyle("-fx-padding: 10;");
+        buttonPanel.getChildren().add(createAssignmentButton);
+        buttonPanel.getChildren().add(createSubjectLabel);
+
+        GridPane assignmentPanel = new GridPane();
 
         subjectCreation = new Popup();
         HBox subjectPanel = new HBox(30);
@@ -54,7 +56,7 @@ public class LockedInnApp extends Application {
         subjectPanel.getChildren().add(finishSubjectButton);
         subjectCreation.getContent().add(subjectPanel);
 
-        Scene scene = new Scene(layout, 400, 200);
+        Scene scene = new Scene(buttonPanel, 400, 200);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Locked Inn - Assignment Tracker");
         primaryStage.show();
