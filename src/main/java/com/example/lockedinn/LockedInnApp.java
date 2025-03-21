@@ -12,6 +12,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Popup;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.awt.*;
@@ -69,9 +70,11 @@ public class LockedInnApp extends Application {
         root.add(subjectPanel, 1, 1);
         root.add(musicPanel, 0, 2, 2, 1);
 
+        int screenWidth = (int) Screen.getPrimary().getBounds().getWidth();
+        int screenHeight = (int) Screen.getPrimary().getBounds().getHeight();
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        int width = gd.getDisplayMode().getWidth()-375;
-        int height = gd.getDisplayMode().getHeight()-300;
+        int width = screenWidth-375;
+        int height = screenHeight-300;
         Scene scene = new Scene(root, width, height);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Locked Inn - Assignment Tracker");

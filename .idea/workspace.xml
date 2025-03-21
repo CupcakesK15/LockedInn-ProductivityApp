@@ -20,7 +20,8 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.LockedInnApp.executor": "Run",
-    "git-widget-placeholder": "master"
+    "git-widget-placeholder": "master",
+    "node.js.selected.package.tslint": "(autodetect)"
   }
 }]]></component>
   <component name="TaskManager">
