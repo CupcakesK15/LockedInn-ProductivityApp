@@ -71,11 +71,9 @@ public class LockedInnApp extends Application {
         root.add(musicPanel, 0, 2, 2, 1);
 
         int screenWidth = (int) Screen.getPrimary().getBounds().getWidth();
-        int screenHeight = (int) Screen.getPrimary().getBounds().getHeight();
+        int screenHeight = (int) Screen.getPrimary().getBounds().getHeight()-70;
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        int width = screenWidth-375;
-        int height = screenHeight-300;
-        Scene scene = new Scene(root, width, height);
+        Scene scene = new Scene(root, screenWidth, screenHeight);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Locked Inn - Assignment Tracker");
         primaryStage.show();
