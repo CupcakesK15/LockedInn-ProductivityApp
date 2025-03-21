@@ -4,6 +4,7 @@ module org.openjfx.triumvirateeoy5 {
 
     requires org.controlsfx.controls;
     requires org.kordamp.bootstrapfx.core;
+    requires java.desktop;
 
     opens org.openjfx.triumvirateeoy5 to javafx.fxml;
     exports org.openjfx.triumvirateeoy5;

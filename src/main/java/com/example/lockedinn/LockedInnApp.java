@@ -10,9 +10,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -33,11 +35,44 @@ public class LockedInnApp extends Application {
         createSubjectLabel.setOnAction(event -> subjectLabelCreation());
 
         HBox buttonPanel = new HBox(15);
+        buttonPanel.setPrefHeight(50);
         buttonPanel.setStyle("-fx-padding: 10;");
         buttonPanel.getChildren().add(createAssignmentButton);
         buttonPanel.getChildren().add(createSubjectLabel);
-        
-        Scene scene = new Scene(buttonPanel, 400, 200);
+
+        Text music = new Text("Music");
+        HBox musicPanel = new HBox(20);
+        musicPanel.setPrefHeight(75);
+        musicPanel.setStyle("-fy-padding: 10;");
+        musicPanel.setStyle("-fx-background-color: #C2914F;");
+        //#e99df5
+        musicPanel.getChildren().add(music);
+
+        Text temp = new Text("Assignment Panel");
+        HBox assignmentPanel = new HBox(15);
+        assignmentPanel.setPrefHeight(675);
+        assignmentPanel.setPrefWidth(773);
+        assignmentPanel.setStyle("-fx-background-color: #452103;");
+        assignmentPanel.getChildren().add(temp);
+
+        Text tempTwo = new Text("Subject Panel");
+        HBox subjectPanel = new HBox(15);
+        subjectPanel.setPrefHeight(675);
+        subjectPanel.setPrefWidth(773);
+        subjectPanel.setStyle("-fx-background-color: #284520ff;");
+        subjectPanel.getChildren().add(tempTwo);
+
+        GridPane root = new GridPane();
+        root.setStyle("-fx-background-color: BLACK;");
+        root.add(buttonPanel, 0, 0);
+        root.add(assignmentPanel, 0, 1);
+        root.add(subjectPanel, 1, 1);
+        root.add(musicPanel, 0, 2, 2, 1);
+
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        int width = gd.getDisplayMode().getWidth()-375;
+        int height = gd.getDisplayMode().getHeight()-300;
+        Scene scene = new Scene(root, width, height);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Locked Inn - Assignment Tracker");
         primaryStage.show();
