@@ -4,10 +4,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -26,6 +23,7 @@ public class LockedInnApp extends Application {
     HashSet<Color> colors = new HashSet<>();
     Stage primaryStage;
     VBox assignmentPanel;
+    Accordion assignments;
 
     public static void main(String[] args) {
         launch(args);
@@ -52,11 +50,14 @@ public class LockedInnApp extends Application {
         musicPanel.setStyle("-fx-background-color: #C2914F;");
         musicPanel.getChildren().add(music);
 
+        assignments = new Accordion();
+
         assignmentPanel = new VBox(15);
         assignmentPanel.setPrefHeight(675);
         assignmentPanel.setPrefWidth(773);
         assignmentPanel.setStyle("-fx-background-color: #452103;");
         assignmentPanel.getChildren().add(new Text("Assignment Panel"));
+        assignmentPanel.getChildren().add(assignments);
 
         Text subjectHeader = new Text("Subject Panel");
         HBox subjectPanel = new HBox(15);
@@ -141,13 +142,14 @@ public class LockedInnApp extends Application {
     private void openAssignmentCreationDialog() {
         showAssignmentDialog("Create Assignment", "Enter Assignment Details", "", "", "", "",
                 updatedText -> {
-                    Label assignmentLabel = new Label(updatedText);
-                    assignmentLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+                    TitledPane pane = new TitledPane();
+                    pane.setText(updatedText.substring(0, updatedText.indexOf('(')));
+                    Label assignmentLabel = new Label(updatedText.substring(updatedText.indexOf('(')));
                     Button editButton = new Button("Edit");
-                    editButton.setOnAction(ev -> openAssignmentEditingDialog(assignmentLabel));
+                    editButton.setOnAction(ev -> openAssignmentEditingDialog(new Label(updatedText)));
                     HBox assignmentRow = new HBox(10, assignmentLabel, editButton);
-                    assignmentRow.setAlignment(Pos.CENTER_LEFT);
-                    assignmentPanel.getChildren().add(assignmentRow);
+                    pane.setContent(assignmentRow);
+                    assignments.getPanes().add(pane);
                 });
     }
 
