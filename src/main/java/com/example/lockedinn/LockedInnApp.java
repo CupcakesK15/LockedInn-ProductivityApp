@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 public class LockedInnApp extends Application {
 
     HashMap<String, Color> subjects = new HashMap<>();
+    ComboBox subjectSelector = new ComboBox();
     HashSet<Color> colors = new HashSet<>();
     Stage primaryStage;
     VBox assignmentPanel;
@@ -32,6 +33,7 @@ public class LockedInnApp extends Application {
     @Override
     public void start(@NotNull Stage primaryStage) {
         this.primaryStage = primaryStage;
+        subjectSelector.setVisibleRowCount(5);
 
         Button createAssignmentButton = new Button("Create Assignment");
         createAssignmentButton.setOnAction(event -> openAssignmentCreationDialog());
@@ -81,7 +83,7 @@ public class LockedInnApp extends Application {
         primaryStage.show();
     }
 
-    private GridPane createAssignmentDetailsGrid(TextField nameField, TextField startField, TextField finishField, TextField progressField) {
+    private GridPane createAssignmentDetailsGrid(TextField nameField, TextField startField, TextField finishField, TextField progressField, ComboBox subjectSelector) {
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(20));
         grid.setHgap(10);
@@ -95,12 +97,13 @@ public class LockedInnApp extends Application {
         grid.add(finishField, 1, 2);
         grid.add(new Label("Progress:"), 0, 3);
         grid.add(progressField, 1, 3);
+        grid.add(subjectSelector, 1, 4);
         return grid;
     }
 
     private void showAssignmentDialog(String title, String headerText,
                                       String initialName, String initialStart,
-                                      String initialFinish, String initialProgress,
+                                      String initialFinish, String initialProgress, String subject,
                                       Consumer<String> onSave) {
         Stage dialogStage = new Stage();
         dialogStage.setTitle(title);
@@ -112,8 +115,9 @@ public class LockedInnApp extends Application {
         TextField startField = new TextField(initialStart);
         TextField finishField = new TextField(initialFinish);
         TextField progressField = new TextField(initialProgress);
+        subjectSelector.setValue(subject);
 
-        GridPane grid = createAssignmentDetailsGrid(nameField, startField, finishField, progressField);
+        GridPane grid = createAssignmentDetailsGrid(nameField, startField, finishField, progressField, subjectSelector);
 
         Button saveButton = new Button("Save");
         saveButton.setOnAction(e -> {
@@ -121,12 +125,13 @@ public class LockedInnApp extends Application {
             String newStart = startField.getText();
             String newFinish = finishField.getText();
             String newProgress = progressField.getText();
-            String updatedText = newName + " (Start: " + newStart + ", Finish: " + newFinish + ", Progress: " + newProgress + ")";
+            String newSubject = subjectSelector.getValue().toString();
+            String updatedText = newName + " (Start: " + newStart + ", Finish: " + newFinish + ", Progress: " + newProgress + ")" + newSubject;
             onSave.accept(updatedText);
             System.out.println("Assignment Saved: " + updatedText);
             dialogStage.close();
         });
-        grid.add(saveButton, 0, 4, 2, 1);
+        grid.add(saveButton, 0, 5, 2, 1);
         GridPane.setMargin(saveButton, new Insets(10, 0, 0, 0));
         saveButton.setMaxWidth(Double.MAX_VALUE);
 
@@ -140,15 +145,18 @@ public class LockedInnApp extends Application {
     }
 
     private void openAssignmentCreationDialog() {
-        showAssignmentDialog("Create Assignment", "Enter Assignment Details", "", "", "", "",
+        showAssignmentDialog("Create Assignment", "Enter Assignment Details", "", "", "", "", "",
                 updatedText -> {
                     TitledPane pane = new TitledPane();
                     pane.setText(updatedText.substring(0, updatedText.indexOf('(')));
-                    Label assignmentLabel = new Label(updatedText.substring(updatedText.indexOf('(')));
+                    Label assignmentLabel = new Label(updatedText.substring(updatedText.indexOf('('), updatedText.indexOf(')') + 1));
                     Button editButton = new Button("Edit");
                     editButton.setOnAction(ev -> openAssignmentEditingDialog(new Label(updatedText)));
                     HBox assignmentRow = new HBox(10, assignmentLabel, editButton);
                     pane.setContent(assignmentRow);
+                    String temp = updatedText.substring(updatedText.indexOf(')') + 1);
+                    Color tempColor = subjects.get(temp);
+                    assignmentRow.setBackground(new Background(new BackgroundFill(tempColor, new CornerRadii(0), new Insets(0))));
                     assignments.getPanes().add(pane);
                 });
     }
@@ -161,31 +169,39 @@ public class LockedInnApp extends Application {
         String start = parts[0].replace("Start: ", "");
         String finish = parts[1].replace("Finish: ", "");
         String progress = parts[2].replace("Progress: ", "");
+        String subject = currentText.substring(currentText.indexOf(')') + 1);
 
-        showAssignmentDialog("Edit Assignment", "Edit Assignment Details", name, start, finish, progress,
+        showAssignmentDialog("Edit Assignment", "Edit Assignment Details", name, start, finish, progress, subject,
                 assignmentLabel::setText);
     }
 
     private void subjectLabelCreation() {
         Popup subjectCreation = new Popup();
+
         HBox subjectPanel = new HBox(30);
         subjectPanel.setPadding(new Insets(5));
         subjectPanel.setBackground(new Background(new BackgroundFill(Color.SPRINGGREEN, CornerRadii.EMPTY, Insets.EMPTY)));
+
         Label subjectPromptLabel = new Label("Subject Name:");
         TextField subjectNameField = new TextField();
         Label colorPromptLabel = new Label("Pick a Color:");
         ColorPicker colorPicker = new ColorPicker();
+
         Button finishSubjectButton = new Button("Finish");
         finishSubjectButton.setOnAction(event -> {
             String temp = subjectNameField.getText();
             subjectNameField.setText("");
             Color color = colorPicker.getValue();
             colorPicker.setValue(Color.WHITE);
+
             subjects.put(temp, color);
             colors.add(color);
+            subjectSelector.getItems().add(temp);
+
             System.out.println("Subjects updated: " + subjects);
             subjectCreation.hide();
         });
+
         subjectPanel.getChildren().addAll(subjectPromptLabel, subjectNameField, colorPromptLabel, colorPicker, finishSubjectButton);
         subjectCreation.getContent().add(subjectPanel);
         subjectCreation.show(primaryStage);
