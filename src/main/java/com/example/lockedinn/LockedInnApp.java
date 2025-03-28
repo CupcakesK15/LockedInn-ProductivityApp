@@ -23,7 +23,7 @@ public class LockedInnApp extends Application {
     ComboBox subjectSelector = new ComboBox();
     HashSet<Color> colors = new HashSet<>();
     Stage primaryStage;
-    //VBox assignmentPanel;
+    //    VBox assignmentBox;
     ScrollPane assignmentPanel;
     Accordion assignments;
 
@@ -55,7 +55,7 @@ public class LockedInnApp extends Application {
 
         assignments = new Accordion();
 
-        //assignmentPanel = new VBox(15);
+//        assignmentBox = new VBox(15);
         assignmentPanel = new ScrollPane(assignments);
         //assignmentPanel.setPrefHeight(675);
         assignmentPanel.setPrefHeight(200);
@@ -177,15 +177,16 @@ public class LockedInnApp extends Application {
                 updatedText -> {
                     TitledPane pane = new TitledPane();
                     pane.setText(updatedText.substring(0, updatedText.indexOf('(')));
-                    Label assignmentLabel = new Label(updatedText.substring(updatedText.indexOf('('), updatedText.indexOf(')') + 1));
+                    Label assignmentLabel = new Label(/*updatedText.substring(0, updatedText.indexOf(')') + 1)*/updatedText.substring(updatedText.indexOf('('), updatedText.indexOf(')') + 1));
                     Button editButton = new Button("Edit");
-                    editButton.setOnAction(ev -> openAssignmentEditingDialog(new Label(updatedText)));
+                    editButton.setOnAction(ev -> openAssignmentEditingDialog(assignmentLabel));
                     HBox assignmentRow = new HBox(10, assignmentLabel, editButton);
                     pane.setContent(assignmentRow);
                     String temp = updatedText.substring(updatedText.indexOf(')') + 1);
                     Color tempColor = subjects.get(temp);
                     assignmentRow.setBackground(new Background(new BackgroundFill(tempColor, new CornerRadii(0), new Insets(0))));
                     assignments.getPanes().add(pane);
+//                    assignmentBox.getChildren().add(assignmentRow);
                 });
     }
 
