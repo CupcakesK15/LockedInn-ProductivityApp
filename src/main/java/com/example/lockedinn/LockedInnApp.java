@@ -13,8 +13,13 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class LockedInnApp extends Application {
@@ -23,6 +28,7 @@ public class LockedInnApp extends Application {
     HashSet<Color> colors = new HashSet<>();
     Stage primaryStage;
     ScrollPane assignmentPanel;
+    ScrollPane subjectPanel;
     Accordion assignments;
 
     public static void main(String[] args) {
@@ -32,6 +38,8 @@ public class LockedInnApp extends Application {
     @Override
     public void start(@NotNull Stage primaryStage) {
         this.primaryStage = primaryStage;
+
+        //Button Panel at the top
         Button createAssignmentButton = new Button("Create Assignment");
         createAssignmentButton.setOnAction(event -> openAssignmentCreationDialog());
         Button createSubjectLabel = new Button("Create Subject Label");
@@ -40,34 +48,47 @@ public class LockedInnApp extends Application {
         buttonPanel.setPrefHeight(50);
         buttonPanel.setPadding(new Insets(10));
         buttonPanel.getChildren().addAll(createAssignmentButton, createSubjectLabel);
+
+        //Music panel at the bottom
         Text music = new Text("Music");
         HBox musicPanel = new HBox(20);
         musicPanel.setPrefHeight(75);
         musicPanel.setPadding(new Insets(10));
         musicPanel.setStyle("-fx-background-color: #C2914F;");
         musicPanel.getChildren().add(music);
+
+        //Assignments panel on the left
         assignments = new Accordion();
         assignmentPanel = new ScrollPane(assignments);
-        assignmentPanel.setPrefHeight(200);
+        assignmentPanel.setPrefHeight(675);
         assignmentPanel.setPrefWidth(950);
         assignmentPanel.setStyle("-fx-background: #452103;");
         assignmentPanel.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         assignmentPanel.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        VBox temporary = new VBox();
-        temporary.setPrefHeight(475);
-        temporary.setPrefWidth(950);
-        temporary.setStyle("-fx-background-color: #C1014E;");
+
+        //not 100% sure what the heck this is :) - Sri K.
+//        VBox temporary = new VBox();
+//        temporary.setPrefHeight(475);
+//        temporary.setPrefWidth(950);
+//        temporary.setStyle("-fx-background-color: #C1014E;");
+
+        //Subject panel on the right
         Text subjectHeader = new Text("Subject Panel");
-        HBox subjectPanel = new HBox(15);
+        HBox subjectBox = new HBox(15);
+        subjectPanel = new ScrollPane(subjectBox);
         subjectPanel.setPrefHeight(675);
         subjectPanel.setPrefWidth(596);
         subjectPanel.setStyle("-fx-background-color: #284520ff;");
-        subjectPanel.getChildren().add(subjectHeader);
+        subjectPanel.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        subjectPanel.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+//        subjectBox.getChildren().add(subjectHeader);
+
+        //putting everything together
         GridPane root = new GridPane();
         root.setStyle("-fx-background-color: BLACK;");
         root.add(buttonPanel, 0, 0);
         root.add(assignmentPanel, 0, 1);
-        root.add(temporary, 0, 2);
+//        root.add(temporary, 0, 2);
         root.add(subjectPanel, 1, 1, 1, 2);
         root.add(musicPanel, 0, 3, 2, 1);
         int screenWidth = (int) Screen.getPrimary().getBounds().getWidth();
@@ -217,6 +238,31 @@ public class LockedInnApp extends Application {
         subjectPanel.getChildren().addAll(subjectPromptLabel, subjectNameField, colorPromptLabel, colorPicker, finishSubjectButton);
         subjectCreation.getContent().add(subjectPanel);
         subjectCreation.show(primaryStage);
+    }
+
+    @Override
+    public void stop() {
+        try {
+            //subjects to file
+            File subjectFile = new File("SubjectsFile.txt");
+            subjectFile.createNewFile();
+            BufferedWriter sfw = new BufferedWriter(new FileWriter(subjectFile));
+            for (Map.Entry<String, Color> entry : subjects.entrySet()) {
+                sfw.write(entry.getKey() + " " + entry.getValue().getRed() + "," + entry.getValue().getGreen() + "," + entry.getValue().getBlue());
+                sfw.newLine();
+                System.out.println(entry.getKey() + " " + entry.getValue().getRed() + "," + entry.getValue().getGreen() + "," + entry.getValue().getBlue());
+            }
+            sfw.close();
+
+            //assignments to file
+            File assignmentFile = new File("AssignmentsFile.txt");
+            assignmentFile.createNewFile();
+            BufferedWriter afw = new BufferedWriter(new FileWriter(assignmentFile));
+
+            afw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static class Assignment {
