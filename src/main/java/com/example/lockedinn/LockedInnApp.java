@@ -53,8 +53,6 @@ public class LockedInnApp extends Application {
     @Override
     public void start(@NotNull Stage primaryStage) {
         this.primaryStage = primaryStage;
-
-        //Button Panel at the top
         Button createAssignmentButton = new Button("Create Assignment");
         createAssignmentButton.setOnAction(event -> openAssignmentCreationDialog());
         Button createSubjectLabel = new Button("Create Subject Label");
@@ -63,16 +61,12 @@ public class LockedInnApp extends Application {
         buttonPanel.setPrefHeight(buttonPanelHeight);
         buttonPanel.setPadding(new Insets(buttonPanelPadding));
         buttonPanel.getChildren().addAll(createAssignmentButton, createSubjectLabel);
-
-        //Music panel at the bottom
         Text music = new Text("Music");
         HBox musicPanel = new HBox(musicPanelSpacing);
         musicPanel.setPrefHeight(musicPanelHeight);
         musicPanel.setPadding(new Insets(musicPanelPadding));
         musicPanel.setStyle("-fx-background-color: #C2914F;");
         musicPanel.getChildren().add(music);
-
-        //Assignments panel on the left
         assignments = new Accordion();
         assignments.setMinWidth(assignmentPanelWidth);
         assignmentPanel = new ScrollPane(assignments);
@@ -81,14 +75,6 @@ public class LockedInnApp extends Application {
         assignmentPanel.setStyle("-fx-background: #452103;");
         assignmentPanel.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         assignmentPanel.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-
-        //Adding The Big Red Box for demonstration purposes
-//        VBox theBigRedBox = new VBox();
-//        theBigRedBox.setPrefHeight(475);
-//        theBigRedBox.setPrefWidth(950);
-//        theBigRedBox.setStyle("-fx-background-color: #C1014E;");
-
-        //Subject panel on the right
         subjectWidgets = new Accordion();
         subjectWidgets.setMinWidth(subjectPanelWidth);
         subjectPanel = new ScrollPane(subjectWidgets);
@@ -97,14 +83,10 @@ public class LockedInnApp extends Application {
         subjectPanel.setStyle("-fx-background-color:#452103;");
         subjectPanel.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         subjectPanel.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-//        subjectBox.getChildren().add(subjectHeader);
-
-        //Putting everything together
         GridPane root = new GridPane();
         root.setStyle("-fx-background-color: BLACK;");
         root.add(buttonPanel, 0, 0);
         root.add(assignmentPanel, 0, 1);
-//        root.add(theBigRedBox, 0, 2);
         root.add(subjectPanel, 1, 1, 1, 2);
         root.add(musicPanel, 0, 3, 2, 1);
         int screenWidth = (int) Screen.getPrimary().getBounds().getWidth();
@@ -115,7 +97,6 @@ public class LockedInnApp extends Application {
         primaryStage.show();
     }
 
-    //Grid for Assignment Pop Up
     private GridPane createAssignmentDetailsGrid(TextField nameField, TextField startField, TextField finishField, TextField progressField, ComboBox<String> localSubjectSelector) {
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(20));
@@ -128,23 +109,25 @@ public class LockedInnApp extends Application {
         grid.add(startField, 1, 1);
         grid.add(new Label("Finish Point:"), 0, 2);
         grid.add(finishField, 1, 2);
-        grid.add(new Label("Progress:"), 0, 3);
+        grid.add(new Label("Progress (%):"), 0, 3);
         grid.add(progressField, 1, 3);
         grid.add(new Label("Day Due:"), 0, 4);
         grid.add(dateSelector, 1, 4);
         grid.add(new Label("Subject:"), 0, 5);
         grid.add(localSubjectSelector, 1, 5);
+
+        ColumnConstraints col0 = new ColumnConstraints();
+        col0.setPercentWidth(40);
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(60);
+        grid.getColumnConstraints().addAll(col0, col1);
+
         return grid;
     }
 
-    private void showAssignmentDialog(String title, String headerText,
-                                      String initialName, String initialStart,
-                                      LocalDate ignoredDate, String initialFinish,
-                                      String initialProgress, String subject,
-                                      Consumer<Assignment> onSave) {
+    private void showAssignmentDialog(String title, String headerText, String initialName, String initialStart, LocalDate ignoredDate, String initialFinish, String initialProgress, String subject, Consumer<Assignment> onSave) {
         Stage dialogStage = new Stage();
         dialogStage.setTitle(title);
-        //dialogStage.setMaxHeight(1000);
         Label headerLabel = new Label(headerText);
         headerLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
         TextField nameField = new TextField(initialName);
@@ -163,9 +146,15 @@ public class LockedInnApp extends Application {
             String newName = nameField.getText();
             String newStart = startField.getText();
             String newFinish = finishField.getText();
-            String newProgress = progressField.getText();
+            String progressText = progressField.getText();
+            double progressValue;
+            try {
+                progressValue = Math.min(1.0, Math.max(0.0, Double.parseDouble(progressText) / 100.0));
+            } catch (NumberFormatException ex) {
+                progressValue = 0.0;
+            }
             String newSubject = localSubjectSelector.getValue() != null ? localSubjectSelector.getValue() : "";
-            Assignment updatedAssignment = new Assignment(newName, newStart, newFinish, newProgress, newSubject);
+            Assignment updatedAssignment = new Assignment(newName, newStart, newFinish, progressValue, newSubject);
             onSave.accept(updatedAssignment);
             System.out.println("Assignment Saved: " + updatedAssignment);
             dialogStage.close();
@@ -181,69 +170,61 @@ public class LockedInnApp extends Application {
         dialogStage.show();
     }
 
-    //Creates assignment drop down
     private void openAssignmentCreationDialog() {
-        showAssignmentDialog("Create Assignment", "Enter Assignment Details", "", "", inputDate, "", "", "",
-                updatedAssignment -> {
-                    TitledPane pane = new TitledPane();
-                    pane.setText(updatedAssignment.name + " " + inputDate.toString());
-                    Label detailsLabel = new Label(updatedAssignment.toString());
-                    Button editButton = new Button("Edit");
-                    editButton.setOnAction(ev -> openAssignmentEditingDialog(pane, detailsLabel));
-
-                    //Checks if assignment has been marked as complete
-                    CheckBox completeCheckBox = new CheckBox("Complete");
-                    completeCheckBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
-                        Assignment assignment = (Assignment) pane.getUserData();
-                        assignment.completed = isNowSelected;
-                        if (isNowSelected) {
-                            detailsLabel.setStyle("-fx-text-fill: gray; -fx-strikethrough: true;");
-                        } else {
-                            detailsLabel.setStyle("");
-                        }
-                    });
-
-                    //Creates assignment drop down
-                    HBox assignmentRow = new HBox(10, completeCheckBox, detailsLabel, editButton);
-                    assignmentRow.setAlignment(Pos.CENTER_LEFT);
-                    pane.setContent(assignmentRow);
-                    Color subjectColor = subjects.get(updatedAssignment.subject);
-                    if (subjectColor != null) {
-                        assignmentRow.setBackground(new Background(new BackgroundFill(subjectColor, CornerRadii.EMPTY, Insets.EMPTY)));
-                    }
-                    pane.setUserData(updatedAssignment);
-                    assignments.getPanes().add(pane);
-                });
+        showAssignmentDialog("Create Assignment", "Enter Assignment Details", "", "", inputDate, "", "", "", updatedAssignment -> {
+            TitledPane pane = new TitledPane();
+            pane.setText(updatedAssignment.name);
+            Label detailsLabel = new Label(updatedAssignment.toString());
+            Button editButton = new Button("Edit");
+            editButton.setOnAction(ev -> openAssignmentEditingDialog(pane, detailsLabel));
+            CheckBox completeCheckBox = new CheckBox("Complete");
+            completeCheckBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
+                Assignment assignment = (Assignment) pane.getUserData();
+                assignment.completed = isNowSelected;
+                if (isNowSelected) {
+                    detailsLabel.setStyle("-fx-text-fill: gray; -fx-strikethrough: true;");
+                } else {
+                    detailsLabel.setStyle("");
+                }
+            });
+            ProgressBar progressBar = new ProgressBar(updatedAssignment.progress);
+            progressBar.setPrefWidth(150);
+            HBox assignmentRow = new HBox(10, completeCheckBox, detailsLabel, progressBar, editButton);
+            assignmentRow.setAlignment(Pos.CENTER_LEFT);
+            pane.setContent(assignmentRow);
+            Color subjectColor = subjects.get(updatedAssignment.subject);
+            if (subjectColor != null) {
+                assignmentRow.setBackground(new Background(new BackgroundFill(subjectColor, CornerRadii.EMPTY, Insets.EMPTY)));
+            }
+            pane.setUserData(updatedAssignment);
+            assignments.getPanes().add(pane);
+        });
     }
 
-    //Creates Assignment Editor Pop Up
     private void openAssignmentEditingDialog(TitledPane pane, Label detailsLabel) {
         Assignment current = (Assignment) pane.getUserData();
-        showAssignmentDialog("Edit Assignment", "Edit Assignment Details",
-                current.name, current.start, inputDate, current.finish, current.progress, current.subject,
-                updatedAssignment -> {
-                    updatedAssignment.completed = current.completed;
-                    pane.setUserData(updatedAssignment);
-                    pane.setText(updatedAssignment.name);
-                    detailsLabel.setText(updatedAssignment.toString());
-                    Color subjectColor = subjects.get(updatedAssignment.subject);
-                    if (subjectColor != null) {
-                        ((HBox) pane.getContent()).setBackground(new Background(new BackgroundFill(subjectColor, CornerRadii.EMPTY, Insets.EMPTY)));
-                    }
-                    HBox row = (HBox) pane.getContent();
-
-                    //Checks if assignment has been marked complete
-                    CheckBox completeCheckBox = (CheckBox) row.getChildren().get(0);
-                    completeCheckBox.setSelected(updatedAssignment.completed);
-                    if (updatedAssignment.completed) {
-                        detailsLabel.setStyle("-fx-text-fill: gray; -fx-strikethrough: true;");
-                    } else {
-                        detailsLabel.setStyle("");
-                    }
-                });
+        showAssignmentDialog("Edit Assignment", "Edit Assignment Details", current.name, current.start, inputDate, current.finish, String.valueOf((int) (current.progress * 100)), current.subject, updatedAssignment -> {
+            updatedAssignment.completed = current.completed;
+            pane.setUserData(updatedAssignment);
+            pane.setText(updatedAssignment.name);
+            detailsLabel.setText(updatedAssignment.toString());
+            Color subjectColor = subjects.get(updatedAssignment.subject);
+            if (subjectColor != null) {
+                ((HBox) pane.getContent()).setBackground(new Background(new BackgroundFill(subjectColor, CornerRadii.EMPTY, Insets.EMPTY)));
+            }
+            HBox row = (HBox) pane.getContent();
+            CheckBox completeCheckBox = (CheckBox) row.getChildren().get(0);
+            ProgressBar progressBar = (ProgressBar) row.getChildren().get(2);
+            progressBar.setProgress(updatedAssignment.progress);
+            completeCheckBox.setSelected(updatedAssignment.completed);
+            if (updatedAssignment.completed) {
+                detailsLabel.setStyle("-fx-text-fill: gray; -fx-strikethrough: true;");
+            } else {
+                detailsLabel.setStyle("");
+            }
+        });
     }
 
-    //Creates Subject Label Creator Pop Up
     private void subjectLabelCreation() {
         Popup subjectCreation = new Popup();
         HBox subjectPanel = new HBox(30);
@@ -272,20 +253,15 @@ public class LockedInnApp extends Application {
     @Override
     public void stop() {
         try {
-            //subjects to file
             File subjectFile = new File("SubjectsFile.txt");
             BufferedWriter sfw = new BufferedWriter(new FileWriter(subjectFile));
             for (Map.Entry<String, Color> entry : subjects.entrySet()) {
                 sfw.write(entry.getKey() + " " + entry.getValue().getRed() + "," + entry.getValue().getGreen() + "," + entry.getValue().getBlue());
                 sfw.newLine();
-                System.out.println(entry.getKey() + " " + entry.getValue().getRed() + "," + entry.getValue().getGreen() + "," + entry.getValue().getBlue());
             }
             sfw.close();
-
-            //assignments to file
             File assignmentFile = new File("AssignmentsFile.txt");
             BufferedWriter afw = new BufferedWriter(new FileWriter(assignmentFile));
-
             afw.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -296,11 +272,11 @@ public class LockedInnApp extends Application {
         String name;
         String start;
         String finish;
-        String progress;
+        double progress;
         String subject;
         boolean completed;
 
-        Assignment(String name, String start, String finish, String progress, String subject) {
+        Assignment(String name, String start, String finish, double progress, String subject) {
             this.name = name;
             this.start = start;
             this.finish = finish;
@@ -311,7 +287,7 @@ public class LockedInnApp extends Application {
 
         @Override
         public String toString() {
-            return "(Start: " + start + ", Finish: " + finish + ", Progress: " + progress + ")";
+            return "(Start: " + start + ", Finish: " + finish + ", Progress: " + (int) (progress * 100) + "%)";
         }
     }
 }

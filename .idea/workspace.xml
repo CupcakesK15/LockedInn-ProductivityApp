@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6bf28748-ce74-4b46-9d78-abf1d56c9cc0" name="Changes" comment="fixed assignment editing">
+    <list default="true" id="6bf28748-ce74-4b46-9d78-abf1d56c9cc0" name="Changes" comment="errors fixed">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SubjectsFile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/SubjectsFile.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/lockedinn/LockedInnApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/lockedinn/LockedInnApp.java" afterDir="false" />
@@ -121,7 +121,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743400145190</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="errors fixed">
+      <option name="closed" value="true" />
+      <created>1743812639723</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1743812639723</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -142,6 +150,7 @@
     <MESSAGE value="Assignment Button" />
     <MESSAGE value="Assignment Editing" />
     <MESSAGE value="fixed assignment editing" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed assignment editing" />
+    <MESSAGE value="errors fixed" />
+    <option name="LAST_COMMIT_MESSAGE" value="errors fixed" />
   </component>
 </project>
