@@ -45,8 +45,6 @@ public class LockedInnApp extends Application {
     int sceneFrameHeight = 70;
     LocalDate inputDate = LocalDate.now();
     DatePicker dateSelector = new DatePicker();
-    //Color golden = Color.rgb(194, 145, 79);
-    //Color burgundy = Color.rgb(69, 33, 3);
 
     public static void main(String[] args) {
         launch(args);
@@ -141,7 +139,7 @@ public class LockedInnApp extends Application {
 
     private void showAssignmentDialog(String title, String headerText,
                                       String initialName, String initialStart,
-                                      LocalDate date, String initialFinish,
+                                      LocalDate ignoredDate, String initialFinish,
                                       String initialProgress, String subject,
                                       Consumer<Assignment> onSave) {
         Stage dialogStage = new Stage();
@@ -166,7 +164,6 @@ public class LockedInnApp extends Application {
             String newStart = startField.getText();
             String newFinish = finishField.getText();
             String newProgress = progressField.getText();
-            LocalDate newDate = dateSelector.getValue();
             String newSubject = localSubjectSelector.getValue() != null ? localSubjectSelector.getValue() : "";
             Assignment updatedAssignment = new Assignment(newName, newStart, newFinish, newProgress, newSubject);
             onSave.accept(updatedAssignment);
@@ -277,7 +274,6 @@ public class LockedInnApp extends Application {
         try {
             //subjects to file
             File subjectFile = new File("SubjectsFile.txt");
-            subjectFile.createNewFile();
             BufferedWriter sfw = new BufferedWriter(new FileWriter(subjectFile));
             for (Map.Entry<String, Color> entry : subjects.entrySet()) {
                 sfw.write(entry.getKey() + " " + entry.getValue().getRed() + "," + entry.getValue().getGreen() + "," + entry.getValue().getBlue());
@@ -288,7 +284,6 @@ public class LockedInnApp extends Application {
 
             //assignments to file
             File assignmentFile = new File("AssignmentsFile.txt");
-            assignmentFile.createNewFile();
             BufferedWriter afw = new BufferedWriter(new FileWriter(assignmentFile));
 
             afw.close();

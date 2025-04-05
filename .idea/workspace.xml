@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6bf28748-ce74-4b46-9d78-abf1d56c9cc0" name="Changes" comment="Assignment Panel Scrolling">
+    <list default="true" id="6bf28748-ce74-4b46-9d78-abf1d56c9cc0" name="Changes" comment="fixed assignment editing">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SubjectsFile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/SubjectsFile.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/lockedinn/LockedInnApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/lockedinn/LockedInnApp.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -111,7 +112,6 @@
       <workItem from="1742822199708" duration="1034000" />
       <workItem from="1743019437907" duration="1373000" />
       <workItem from="1743151538432" duration="4840000" />
-      <workItem from="1743760194262" duration="9364000" />
     </task>
     <task id="LOCAL-00002" summary="fixed assignment editing">
       <option name="closed" value="true" />
