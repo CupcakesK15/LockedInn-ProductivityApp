@@ -32,6 +32,7 @@ public class LockedInnApp extends Application {
     ScrollPane assignmentPanel;
     ScrollPane subjectPanel;
     Accordion assignments;
+    VBox subjectBox;
     Accordion subjectWidgets;
 
     int buttonPanelSpacing = 15;
@@ -48,7 +49,6 @@ public class LockedInnApp extends Application {
 
     LocalDate inputDate = LocalDate.now();
     DatePicker dateSelector = new DatePicker();
-    VBox subjectBox;
 
     public static void main(String[] args) {
         launch(args);
@@ -116,7 +116,7 @@ public class LockedInnApp extends Application {
 
         int screenWidth = (int) Screen.getPrimary().getBounds().getWidth();
         int screenHeight = (int) Screen.getPrimary().getBounds().getHeight() - sceneFrameHeight;
-        
+
         Scene scene = new Scene(root, screenWidth, screenHeight);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Locked Inn - Assignment Tracker");
@@ -329,7 +329,7 @@ public class LockedInnApp extends Application {
 
         @Override
         public String toString() {
-            return "(Start: " + start + ", Finish: " + finish + ", Progress: " + (int) (progress * 100) + "%)";
+            return "(Start: " + start + ", Finish: " + finish + ", Progress: " + progress + ")";
         }
     }
 }
