@@ -262,6 +262,14 @@ public class LockedInnApp extends Application {
         TextField subjectNameField = new TextField();
         Label colorPromptLabel = new Label("Pick a Color:");
         ColorPicker colorPicker = new ColorPicker();
+        Button finishSubjectButton = getButton(subjectNameField, colorPicker, subjectCreation);
+
+        subjectCreationPanel.getChildren().addAll(subjectPromptLabel, subjectNameField, colorPromptLabel, colorPicker, finishSubjectButton);
+        subjectCreation.getContent().add(subjectCreationPanel);
+        subjectCreation.show(primaryStage);
+    }
+
+    private @NotNull Button getButton(TextField subjectNameField, ColorPicker colorPicker, Popup subjectCreation) {
         Button finishSubjectButton = new Button("Finish");
 
         finishSubjectButton.setOnAction(event -> {
@@ -286,10 +294,7 @@ public class LockedInnApp extends Application {
             subject.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
             subjectBox.getChildren().add(subject);
         });
-
-        subjectCreationPanel.getChildren().addAll(subjectPromptLabel, subjectNameField, colorPromptLabel, colorPicker, finishSubjectButton);
-        subjectCreation.getContent().add(subjectCreationPanel);
-        subjectCreation.show(primaryStage);
+        return finishSubjectButton;
     }
 
     @Override
