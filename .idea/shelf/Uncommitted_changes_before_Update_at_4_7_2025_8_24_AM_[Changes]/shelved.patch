@@ -1,0 +1,151 @@
+Index: src/main/java/com/example/lockedinn/LockedInnApp.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.lockedinn;\r\n\r\nimport javafx.application.Application;\r\nimport javafx.geometry.Insets;\r\nimport javafx.geometry.Pos;\r\nimport javafx.scene.Scene;\r\nimport javafx.scene.control.*;\r\nimport javafx.scene.layout.*;\r\nimport javafx.scene.paint.Color;\r\nimport javafx.scene.text.Text;\r\nimport javafx.stage.Popup;\r\nimport javafx.stage.Screen;\r\nimport javafx.stage.Stage;\r\nimport org.jetbrains.annotations.NotNull;\r\n\r\nimport java.io.BufferedWriter;\r\nimport java.io.File;\r\nimport java.io.FileWriter;\r\nimport java.io.IOException;\r\nimport java.time.LocalDate;\r\nimport java.util.HashMap;\r\nimport java.util.HashSet;\r\nimport java.util.Map;\r\nimport java.util.function.Consumer;\r\n\r\npublic class LockedInnApp extends Application {\r\n\r\n    HashMap<String, Color> subjects = new HashMap<>();\r\n    HashSet<Color> colors = new HashSet<>();\r\n    Stage primaryStage;\r\n    ScrollPane assignmentPanel;\r\n    ScrollPane subjectPanel;\r\n    Accordion assignments;\r\n    Accordion subjectWidgets;\r\n    int buttonPanelSpacing = 15;\r\n    int buttonPanelHeight = 50;\r\n    int buttonPanelPadding = 10;\r\n    int musicPanelSpacing = 20;\r\n    int musicPanelHeight = 75;\r\n    int musicPanelPadding = 10;\r\n    int assignmentPanelHeight = 675;\r\n    int assignmentPanelWidth = 950;\r\n    int subjectPanelHeight = 675;\r\n    int subjectPanelWidth = 596;\r\n    int sceneFrameHeight = 70;\r\n    LocalDate inputDate = LocalDate.now();\r\n    DatePicker dateSelector = new DatePicker();\r\n\r\n    public static void main(String[] args) {\r\n        launch(args);\r\n    }\r\n\r\n    @Override\r\n    public void start(@NotNull Stage primaryStage) {\r\n        this.primaryStage = primaryStage;\r\n        Button createAssignmentButton = new Button(\"Create Assignment\");\r\n        createAssignmentButton.setOnAction(event -> openAssignmentCreationDialog());\r\n        Button createSubjectLabel = new Button(\"Create Subject Label\");\r\n        createSubjectLabel.setOnAction(event -> subjectLabelCreation());\r\n        HBox buttonPanel = new HBox(buttonPanelSpacing);\r\n        buttonPanel.setPrefHeight(buttonPanelHeight);\r\n        buttonPanel.setPadding(new Insets(buttonPanelPadding));\r\n        buttonPanel.getChildren().addAll(createAssignmentButton, createSubjectLabel);\r\n        Text music = new Text(\"Music\");\r\n        HBox musicPanel = new HBox(musicPanelSpacing);\r\n        musicPanel.setPrefHeight(musicPanelHeight);\r\n        musicPanel.setPadding(new Insets(musicPanelPadding));\r\n        musicPanel.setStyle(\"-fx-background-color: #C2914F;\");\r\n        musicPanel.getChildren().add(music);\r\n        assignments = new Accordion();\r\n        assignments.setMinWidth(assignmentPanelWidth);\r\n        assignmentPanel = new ScrollPane(assignments);\r\n        assignmentPanel.setPrefHeight(assignmentPanelHeight);\r\n        assignmentPanel.setPrefWidth(assignmentPanelWidth);\r\n        assignmentPanel.setStyle(\"-fx-background: #452103;\");\r\n        assignmentPanel.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);\r\n        assignmentPanel.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);\r\n        subjectWidgets = new Accordion();\r\n        subjectWidgets.setMinWidth(subjectPanelWidth);\r\n        subjectPanel = new ScrollPane(subjectWidgets);\r\n        subjectPanel.setPrefHeight(subjectPanelHeight);\r\n        subjectPanel.setPrefWidth(subjectPanelWidth);\r\n        subjectPanel.setStyle(\"-fx-background-color:#452103;\");\r\n        subjectPanel.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);\r\n        subjectPanel.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);\r\n        GridPane root = new GridPane();\r\n        root.setStyle(\"-fx-background-color: BLACK;\");\r\n        root.add(buttonPanel, 0, 0);\r\n        root.add(assignmentPanel, 0, 1);\r\n        root.add(subjectPanel, 1, 1, 1, 2);\r\n        root.add(musicPanel, 0, 3, 2, 1);\r\n        int screenWidth = (int) Screen.getPrimary().getBounds().getWidth();\r\n        int screenHeight = (int) Screen.getPrimary().getBounds().getHeight() - sceneFrameHeight;\r\n        Scene scene = new Scene(root, screenWidth, screenHeight);\r\n        primaryStage.setScene(scene);\r\n        primaryStage.setTitle(\"Locked Inn - Assignment Tracker\");\r\n        primaryStage.show();\r\n    }\r\n\r\n    private GridPane createAssignmentDetailsGrid(TextField nameField, TextField startField, TextField finishField, TextField progressField, ComboBox<String> localSubjectSelector) {\r\n        GridPane grid = new GridPane();\r\n        grid.setPadding(new Insets(20));\r\n        grid.setHgap(10);\r\n        grid.setVgap(10);\r\n        grid.setAlignment(Pos.CENTER);\r\n        grid.add(new Label(\"Assignment Name:\"), 0, 0);\r\n        grid.add(nameField, 1, 0);\r\n        grid.add(new Label(\"Start Point:\"), 0, 1);\r\n        grid.add(startField, 1, 1);\r\n        grid.add(new Label(\"Finish Point:\"), 0, 2);\r\n        grid.add(finishField, 1, 2);\r\n        grid.add(new Label(\"Progress (%):\"), 0, 3);\r\n        grid.add(progressField, 1, 3);\r\n        grid.add(new Label(\"Day Due:\"), 0, 4);\r\n        grid.add(dateSelector, 1, 4);\r\n        grid.add(new Label(\"Subject:\"), 0, 5);\r\n        grid.add(localSubjectSelector, 1, 5);\r\n\r\n        ColumnConstraints col0 = new ColumnConstraints();\r\n        col0.setPercentWidth(40);\r\n        ColumnConstraints col1 = new ColumnConstraints();\r\n        col1.setPercentWidth(60);\r\n        grid.getColumnConstraints().addAll(col0, col1);\r\n\r\n        return grid;\r\n    }\r\n\r\n    private void showAssignmentDialog(String title, String headerText, String initialName, String initialStart, LocalDate ignoredDate, String initialFinish, String initialProgress, String subject, Consumer<Assignment> onSave) {\r\n        Stage dialogStage = new Stage();\r\n        dialogStage.setTitle(title);\r\n        Label headerLabel = new Label(headerText);\r\n        headerLabel.setStyle(\"-fx-font-size: 16px; -fx-font-weight: bold;\");\r\n        TextField nameField = new TextField(initialName);\r\n        TextField startField = new TextField(initialStart);\r\n        TextField finishField = new TextField(initialFinish);\r\n        TextField progressField = new TextField(initialProgress);\r\n        ComboBox<String> localSubjectSelector = new ComboBox<>();\r\n        localSubjectSelector.getItems().addAll(subjects.keySet());\r\n        localSubjectSelector.setVisibleRowCount(5);\r\n        if (subject != null && !subject.isEmpty()) {\r\n            localSubjectSelector.setValue(subject);\r\n        }\r\n        GridPane grid = createAssignmentDetailsGrid(nameField, startField, finishField, progressField, localSubjectSelector);\r\n        Button saveButton = new Button(\"Save\");\r\n        saveButton.setOnAction(e -> {\r\n            String newName = nameField.getText();\r\n            String newStart = startField.getText();\r\n            String newFinish = finishField.getText();\r\n            String progressText = progressField.getText();\r\n            double progressValue;\r\n            try {\r\n                progressValue = Math.min(1.0, Math.max(0.0, Double.parseDouble(progressText) / 100.0));\r\n            } catch (NumberFormatException ex) {\r\n                progressValue = 0.0;\r\n            }\r\n            String newSubject = localSubjectSelector.getValue() != null ? localSubjectSelector.getValue() : \"\";\r\n            Assignment updatedAssignment = new Assignment(newName, newStart, newFinish, progressValue, newSubject);\r\n            onSave.accept(updatedAssignment);\r\n            System.out.println(\"Assignment Saved: \" + updatedAssignment);\r\n            dialogStage.close();\r\n        });\r\n        grid.add(saveButton, 0, 6, 2, 1);\r\n        GridPane.setMargin(saveButton, new Insets(10, 0, 0, 0));\r\n        saveButton.setMaxWidth(Double.MAX_VALUE);\r\n        VBox dialogLayout = new VBox(10, headerLabel, grid);\r\n        dialogLayout.setPadding(new Insets(20));\r\n        Scene dialogScene = new Scene(dialogLayout, 350, 350);\r\n        dialogStage.setScene(dialogScene);\r\n        dialogStage.initOwner(primaryStage);\r\n        dialogStage.show();\r\n    }\r\n\r\n    private void openAssignmentCreationDialog() {\r\n        showAssignmentDialog(\"Create Assignment\", \"Enter Assignment Details\", \"\", \"\", inputDate, \"\", \"\", \"\", updatedAssignment -> {\r\n            TitledPane pane = new TitledPane();\r\n            pane.setText(updatedAssignment.name);\r\n            Label detailsLabel = new Label(updatedAssignment.toString());\r\n            Button editButton = new Button(\"Edit\");\r\n            editButton.setOnAction(ev -> openAssignmentEditingDialog(pane, detailsLabel));\r\n            CheckBox completeCheckBox = new CheckBox(\"Complete\");\r\n            completeCheckBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {\r\n                Assignment assignment = (Assignment) pane.getUserData();\r\n                assignment.completed = isNowSelected;\r\n                if (isNowSelected) {\r\n                    detailsLabel.setStyle(\"-fx-text-fill: gray; -fx-strikethrough: true;\");\r\n                } else {\r\n                    detailsLabel.setStyle(\"\");\r\n                }\r\n            });\r\n            ProgressBar progressBar = new ProgressBar(updatedAssignment.progress);\r\n            progressBar.setPrefWidth(150);\r\n            HBox assignmentRow = new HBox(10, completeCheckBox, detailsLabel, progressBar, editButton);\r\n            assignmentRow.setAlignment(Pos.CENTER_LEFT);\r\n            pane.setContent(assignmentRow);\r\n            Color subjectColor = subjects.get(updatedAssignment.subject);\r\n            if (subjectColor != null) {\r\n                assignmentRow.setBackground(new Background(new BackgroundFill(subjectColor, CornerRadii.EMPTY, Insets.EMPTY)));\r\n            }\r\n            pane.setUserData(updatedAssignment);\r\n            assignments.getPanes().add(pane);\r\n        });\r\n    }\r\n\r\n    private void openAssignmentEditingDialog(TitledPane pane, Label detailsLabel) {\r\n        Assignment current = (Assignment) pane.getUserData();\r\n        showAssignmentDialog(\"Edit Assignment\", \"Edit Assignment Details\", current.name, current.start, inputDate, current.finish, String.valueOf((int) (current.progress * 100)), current.subject, updatedAssignment -> {\r\n            updatedAssignment.completed = current.completed;\r\n            pane.setUserData(updatedAssignment);\r\n            pane.setText(updatedAssignment.name);\r\n            detailsLabel.setText(updatedAssignment.toString());\r\n            Color subjectColor = subjects.get(updatedAssignment.subject);\r\n            if (subjectColor != null) {\r\n                ((HBox) pane.getContent()).setBackground(new Background(new BackgroundFill(subjectColor, CornerRadii.EMPTY, Insets.EMPTY)));\r\n            }\r\n            HBox row = (HBox) pane.getContent();\r\n            CheckBox completeCheckBox = (CheckBox) row.getChildren().get(0);\r\n            ProgressBar progressBar = (ProgressBar) row.getChildren().get(2);\r\n            progressBar.setProgress(updatedAssignment.progress);\r\n            completeCheckBox.setSelected(updatedAssignment.completed);\r\n            if (updatedAssignment.completed) {\r\n                detailsLabel.setStyle(\"-fx-text-fill: gray; -fx-strikethrough: true;\");\r\n            } else {\r\n                detailsLabel.setStyle(\"\");\r\n            }\r\n        });\r\n    }\r\n\r\n    private void subjectLabelCreation() {\r\n        Popup subjectCreation = new Popup();\r\n        HBox subjectPanel = new HBox(30);\r\n        subjectPanel.setPadding(new Insets(5));\r\n        subjectPanel.setBackground(new Background(new BackgroundFill(Color.SPRINGGREEN, CornerRadii.EMPTY, Insets.EMPTY)));\r\n        Label subjectPromptLabel = new Label(\"Subject Name:\");\r\n        TextField subjectNameField = new TextField();\r\n        Label colorPromptLabel = new Label(\"Pick a Color:\");\r\n        ColorPicker colorPicker = new ColorPicker();\r\n        Button finishSubjectButton = new Button(\"Finish\");\r\n        finishSubjectButton.setOnAction(event -> {\r\n            String subjectName = subjectNameField.getText();\r\n            subjectNameField.setText(\"\");\r\n            Color color = colorPicker.getValue();\r\n            colorPicker.setValue(Color.WHITE);\r\n            subjects.put(subjectName, color);\r\n            colors.add(color);\r\n            System.out.println(\"Subjects updated: \" + subjects);\r\n            subjectCreation.hide();\r\n        });\r\n        subjectPanel.getChildren().addAll(subjectPromptLabel, subjectNameField, colorPromptLabel, colorPicker, finishSubjectButton);\r\n        subjectCreation.getContent().add(subjectPanel);\r\n        subjectCreation.show(primaryStage);\r\n    }\r\n\r\n    @Override\r\n    public void stop() {\r\n        try {\r\n            File subjectFile = new File(\"SubjectsFile.txt\");\r\n            BufferedWriter sfw = new BufferedWriter(new FileWriter(subjectFile));\r\n            for (Map.Entry<String, Color> entry : subjects.entrySet()) {\r\n                sfw.write(entry.getKey() + \" \" + entry.getValue().getRed() + \",\" + entry.getValue().getGreen() + \",\" + entry.getValue().getBlue());\r\n                sfw.newLine();\r\n            }\r\n            sfw.close();\r\n            File assignmentFile = new File(\"AssignmentsFile.txt\");\r\n            BufferedWriter afw = new BufferedWriter(new FileWriter(assignmentFile));\r\n            afw.close();\r\n        } catch (IOException e) {\r\n            e.printStackTrace();\r\n        }\r\n    }\r\n\r\n    private static class Assignment {\r\n        String name;\r\n        String start;\r\n        String finish;\r\n        double progress;\r\n        String subject;\r\n        boolean completed;\r\n\r\n        Assignment(String name, String start, String finish, double progress, String subject) {\r\n            this.name = name;\r\n            this.start = start;\r\n            this.finish = finish;\r\n            this.progress = progress;\r\n            this.subject = subject;\r\n            this.completed = false;\r\n        }\r\n\r\n        @Override\r\n        public String toString() {\r\n            return \"(Start: \" + start + \", Finish: \" + finish + \", Progress: \" + (int) (progress * 100) + \"%)\";\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/example/lockedinn/LockedInnApp.java b/src/main/java/com/example/lockedinn/LockedInnApp.java
+--- a/src/main/java/com/example/lockedinn/LockedInnApp.java	(revision 4640aa6b1085250e46a1c01ccbfe1f4a52a8bb77)
++++ b/src/main/java/com/example/lockedinn/LockedInnApp.java	(date 1744032251619)
+@@ -43,7 +43,7 @@
+     int subjectPanelHeight = 675;
+     int subjectPanelWidth = 596;
+     int sceneFrameHeight = 70;
+-    LocalDate inputDate = LocalDate.now();
++    LocalDate inputDate;
+     DatePicker dateSelector = new DatePicker();
+ 
+     public static void main(String[] args) {
+@@ -97,7 +97,7 @@
+         primaryStage.show();
+     }
+ 
+-    private GridPane createAssignmentDetailsGrid(TextField nameField, TextField startField, TextField finishField, TextField progressField, ComboBox<String> localSubjectSelector) {
++    private GridPane createAssignmentDetailsGrid(TextField nameField, TextField startField, TextField finishField, TextField progressFieldOne, TextField progressFieldTwo, ComboBox<String> localSubjectSelector) {
+         GridPane grid = new GridPane();
+         grid.setPadding(new Insets(20));
+         grid.setHgap(10);
+@@ -109,12 +109,14 @@
+         grid.add(startField, 1, 1);
+         grid.add(new Label("Finish Point:"), 0, 2);
+         grid.add(finishField, 1, 2);
+-        grid.add(new Label("Progress (%):"), 0, 3);
+-        grid.add(progressField, 1, 3);
+-        grid.add(new Label("Day Due:"), 0, 4);
+-        grid.add(dateSelector, 1, 4);
+-        grid.add(new Label("Subject:"), 0, 5);
+-        grid.add(localSubjectSelector, 1, 5);
++        grid.add(new Label("Progress (#):"), 0, 3);
++        grid.add(progressFieldOne, 1, 3);
++        grid.add(new Label("Progress (%):"), 0, 4);
++        grid.add(progressFieldTwo, 1, 4);
++        grid.add(new Label("Day Due:"), 0, 5);
++        grid.add(dateSelector, 1, 5);
++        grid.add(new Label("Subject:"), 0, 6);
++        grid.add(localSubjectSelector, 1, 6);
+ 
+         ColumnConstraints col0 = new ColumnConstraints();
+         col0.setPercentWidth(40);
+@@ -133,23 +135,28 @@
+         TextField nameField = new TextField(initialName);
+         TextField startField = new TextField(initialStart);
+         TextField finishField = new TextField(initialFinish);
+-        TextField progressField = new TextField(initialProgress);
++        TextField progressFieldOne = new TextField(initialProgress);
++        TextField progressFieldTwo = new TextField(initialProgress);
+         ComboBox<String> localSubjectSelector = new ComboBox<>();
+         localSubjectSelector.getItems().addAll(subjects.keySet());
+         localSubjectSelector.setVisibleRowCount(5);
+         if (subject != null && !subject.isEmpty()) {
+             localSubjectSelector.setValue(subject);
+         }
+-        GridPane grid = createAssignmentDetailsGrid(nameField, startField, finishField, progressField, localSubjectSelector);
++        GridPane grid = createAssignmentDetailsGrid(nameField, startField, finishField, progressFieldOne, progressFieldTwo, localSubjectSelector);
+         Button saveButton = new Button("Save");
+         saveButton.setOnAction(e -> {
+             String newName = nameField.getText();
+             String newStart = startField.getText();
+             String newFinish = finishField.getText();
+-            String progressText = progressField.getText();
++            String progressTextOne = progressFieldOne.getText();
++            String progressTextTwo = progressFieldTwo.getText();
++            inputDate = dateSelector.getValue();
++            newName = newName + " " + inputDate.toString();
++            //Collections.sort(assignments.getPanes());
+             double progressValue;
+             try {
+-                progressValue = Math.min(1.0, Math.max(0.0, Double.parseDouble(progressText) / 100.0));
++                progressValue = Math.min(1.0, Math.max(0.0, Double.parseDouble(progressTextTwo) / 100.0));
+             } catch (NumberFormatException ex) {
+                 progressValue = 0.0;
+             }
+@@ -159,12 +166,12 @@
+             System.out.println("Assignment Saved: " + updatedAssignment);
+             dialogStage.close();
+         });
+-        grid.add(saveButton, 0, 6, 2, 1);
++        grid.add(saveButton, 0, 7, 2, 1);
+         GridPane.setMargin(saveButton, new Insets(10, 0, 0, 0));
+         saveButton.setMaxWidth(Double.MAX_VALUE);
+         VBox dialogLayout = new VBox(10, headerLabel, grid);
+         dialogLayout.setPadding(new Insets(20));
+-        Scene dialogScene = new Scene(dialogLayout, 350, 350);
++        Scene dialogScene = new Scene(dialogLayout, 350, 400);
+         dialogStage.setScene(dialogScene);
+         dialogStage.initOwner(primaryStage);
+         dialogStage.show();
+@@ -250,6 +257,41 @@
+         subjectCreation.show(primaryStage);
+     }
+ 
++    /*
++    private void mergeSort(ArrayList<TitledPane> list, int n) {
++        if (n < 2) {
++            return;
++        }
++        int middle = n / 2;
++        ArrayList<TitledPane> left = new ArrayList<TitledPane>();
++        ArrayList<TitledPane> right = new ArrayList<TitledPane>();
++        int rightNum = n - middle;
++
++        for (int i = 0; i < middle; i++) {
++            left.add(list.get(i));
++        }
++
++        for (int i = middle; i < n; i++) {
++            right.add(list.get(i));
++        }
++
++        mergeSort(left, middle);
++        mergeSort(right, n - middle);
++        merge(list, left, right, middle, n - middle);
++    }
++     */
++
++    /*
++    private void merge(ArrayList<TitledPane> list, ArrayList<TitledPane> left, ArrayList<TitledPane> right, int l, int r) {
++        int i = 0, j = 0, k = 0;
++        while (i < l && j < r) {
++            if (left.get(i) <= right.get(i)) {
++                list.set(k++, left.get(i++));
++            }
++        }
++    }
++    */
++
+     @Override
+     public void stop() {
+         try {
+Index: SubjectsFile.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>dtcfygjvh 0.7019608020782471,0.7019608020782471,0.10196078568696976\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/SubjectsFile.txt b/SubjectsFile.txt
+--- a/SubjectsFile.txt	(revision 4640aa6b1085250e46a1c01ccbfe1f4a52a8bb77)
++++ b/SubjectsFile.txt	(date 1744031851926)
+@@ -1,1 +1,0 @@
+-dtcfygjvh 0.7019608020782471,0.7019608020782471,0.10196078568696976

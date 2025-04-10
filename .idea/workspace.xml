@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6bf28748-ce74-4b46-9d78-abf1d56c9cc0" name="Changes" comment="errors fixed">
+    <list default="true" id="6bf28748-ce74-4b46-9d78-abf1d56c9cc0" name="Changes" comment="Added some comments explaining the code and added a date picker to the assignment creator - date picker is not functioning yet, I will add that next">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SubjectsFile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/SubjectsFile.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/lockedinn/LockedInnApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/lockedinn/LockedInnApp.java" afterDir="false" />
     </list>
@@ -111,6 +112,9 @@
       <workItem from="1742822199708" duration="1034000" />
       <workItem from="1743019437907" duration="1373000" />
       <workItem from="1743151538432" duration="4840000" />
+      <workItem from="1744080222364" duration="2260000" />
+      <workItem from="1744117813123" duration="379000" />
+      <workItem from="1744292207013" duration="1349000" />
     </task>
     <task id="LOCAL-00002" summary="fixed assignment editing">
       <option name="closed" value="true" />
