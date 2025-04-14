@@ -27,7 +27,6 @@ public class LockedInnApp extends Application {
 
     HashMap<String, Color> subjects = new HashMap<>();
     HashSet<Color> colors = new HashSet<>();
-    HashMap<String, Assignment> assignmentSet = new HashMap<>();
 
     Stage primaryStage;
     ScrollPane assignmentPanel;
