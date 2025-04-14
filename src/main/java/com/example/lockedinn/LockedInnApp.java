@@ -27,6 +27,7 @@ public class LockedInnApp extends Application {
 
     HashMap<String, Color> subjects = new HashMap<>();
     HashSet<Color> colors = new HashSet<>();
+    HashMap<String, Assignment> assignmentSet = new HashMap<>();
 
     Stage primaryStage;
     ScrollPane assignmentPanel;
@@ -181,6 +182,7 @@ public class LockedInnApp extends Application {
             }
             String newSubject = localSubjectSelector.getValue() != null ? localSubjectSelector.getValue() : "";
             Assignment updatedAssignment = new Assignment(newName, newStart, newFinish, progressValue, newSubject);
+//            assignmentSet.put(newName, updatedAssignment);
             onSave.accept(updatedAssignment);
             System.out.println("Assignment Saved: " + updatedAssignment);
             dialogStage.close();
@@ -307,8 +309,14 @@ public class LockedInnApp extends Application {
                 sfw.newLine();
             }
             sfw.close();
+
             File assignmentFile = new File("AssignmentsFile.txt");
             BufferedWriter afw = new BufferedWriter(new FileWriter(assignmentFile));
+            for (TitledPane pane : assignments.getPanes()) {
+                Assignment temp = (Assignment) pane.getUserData();
+                afw.write(temp.compileInfo());
+                afw.newLine();
+            }
             afw.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -335,6 +343,10 @@ public class LockedInnApp extends Application {
         @Override
         public String toString() {
             return "(Start: " + start + ", Finish: " + finish + ", Progress: " + progress + ")";
+        }
+
+        public String compileInfo() {
+            return name + "-" + start + "-" + finish + "-" + progress + "-" + subject + "-" + completed;
         }
     }
 }
