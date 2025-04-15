@@ -48,7 +48,6 @@ public class LockedInnApp extends Application {
     int sceneFrameHeight = 70;
 
     LocalDate inputDate = LocalDate.now();
-    DatePicker dateSelector = new DatePicker();
 
     public static void main(String[] args) {
         launch(args);
@@ -91,14 +90,6 @@ public class LockedInnApp extends Application {
         subjectPanel.setPrefWidth(subjectPanelWidth);
         subjectPanel.setStyle("-fx-background-color:#452103;");
 
-        //not 100% sure what the heck this is :) - Sri K.
-//        VBox temporary = new VBox();
-//        temporary.setPrefHeight(475);
-//        temporary.setPrefWidth(950);
-//        temporary.setStyle("-fx-background-color: #C1014E;");
-
-        //Subject panel on the right
-//        Text subjectHeader = new Text("Subject Panel");
         subjectBox = new VBox(15);
         subjectPanel = new ScrollPane(subjectBox);
         subjectPanel.setPrefHeight(675);
@@ -123,7 +114,7 @@ public class LockedInnApp extends Application {
         primaryStage.show();
     }
 
-    private GridPane createAssignmentDetailsGrid(TextField nameField, TextField startField, TextField finishField, TextField progressField, ComboBox<String> localSubjectSelector) {
+    private GridPane createAssignmentDetailsGrid(TextField nameField, TextField startField, TextField finishField, TextField progressField, DatePicker dueDatePicker, ComboBox<String> localSubjectSelector) {
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(20));
         grid.setHgap(10);
@@ -137,8 +128,8 @@ public class LockedInnApp extends Application {
         grid.add(finishField, 1, 2);
         grid.add(new Label("Progress (%):"), 0, 3);
         grid.add(progressField, 1, 3);
-        grid.add(new Label("Day Due:"), 0, 4);
-        grid.add(dateSelector, 1, 4);
+        grid.add(new Label("Due Date:"), 0, 4);
+        grid.add(dueDatePicker, 1, 4);
         grid.add(new Label("Subject:"), 0, 5);
         grid.add(localSubjectSelector, 1, 5);
 
@@ -151,7 +142,7 @@ public class LockedInnApp extends Application {
         return grid;
     }
 
-    private void showAssignmentDialog(String title, String headerText, String initialName, String initialStart, LocalDate ignoredDate, String initialFinish, String initialProgress, String subject, Consumer<Assignment> onSave) {
+    private void showAssignmentDialog(String title, String headerText, String initialName, String initialStart, LocalDate initialDueDate, String initialFinish, String initialProgress, String subject, Consumer<Assignment> onSave) {
         Stage dialogStage = new Stage();
         dialogStage.setTitle(title);
         Label headerLabel = new Label(headerText);
@@ -160,14 +151,16 @@ public class LockedInnApp extends Application {
         TextField startField = new TextField(initialStart);
         TextField finishField = new TextField(initialFinish);
         TextField progressField = new TextField(initialProgress);
+        DatePicker dueDatePicker = new DatePicker(initialDueDate);
         ComboBox<String> localSubjectSelector = new ComboBox<>();
         localSubjectSelector.getItems().addAll(subjects.keySet());
         localSubjectSelector.setVisibleRowCount(5);
         if (subject != null && !subject.isEmpty()) {
             localSubjectSelector.setValue(subject);
         }
-        GridPane grid = createAssignmentDetailsGrid(nameField, startField, finishField, progressField, localSubjectSelector);
+        GridPane grid = createAssignmentDetailsGrid(nameField, startField, finishField, progressField, dueDatePicker, localSubjectSelector);
         Button saveButton = new Button("Save");
+
         saveButton.setOnAction(e -> {
             String newName = nameField.getText();
             String newStart = startField.getText();
@@ -179,9 +172,11 @@ public class LockedInnApp extends Application {
             } catch (NumberFormatException ex) {
                 progressValue = 0.0;
             }
+            boolean autoComplete = (progressValue == 1.0);
+            LocalDate dueDate = dueDatePicker.getValue();
             String newSubject = localSubjectSelector.getValue() != null ? localSubjectSelector.getValue() : "";
-            Assignment updatedAssignment = new Assignment(newName, newStart, newFinish, progressValue, newSubject);
-//            assignmentSet.put(newName, updatedAssignment);
+            Assignment updatedAssignment = new Assignment(newName, newStart, newFinish, progressValue, newSubject, dueDate);
+            updatedAssignment.completed = autoComplete;
             onSave.accept(updatedAssignment);
             System.out.println("Assignment Saved: " + updatedAssignment);
             dialogStage.close();
@@ -191,7 +186,7 @@ public class LockedInnApp extends Application {
         saveButton.setMaxWidth(Double.MAX_VALUE);
         VBox dialogLayout = new VBox(10, headerLabel, grid);
         dialogLayout.setPadding(new Insets(20));
-        Scene dialogScene = new Scene(dialogLayout, 350, 350);
+        Scene dialogScene = new Scene(dialogLayout, 350, 400);
         dialogStage.setScene(dialogScene);
         dialogStage.initOwner(primaryStage);
         dialogStage.show();
@@ -230,8 +225,8 @@ public class LockedInnApp extends Application {
 
     private void openAssignmentEditingDialog(TitledPane pane, Label detailsLabel) {
         Assignment current = (Assignment) pane.getUserData();
-        showAssignmentDialog("Edit Assignment", "Edit Assignment Details", current.name, current.start, inputDate, current.finish, String.valueOf((int) (current.progress * 100)), current.subject, updatedAssignment -> {
-            updatedAssignment.completed = current.completed;
+        showAssignmentDialog("Edit Assignment", "Edit Assignment Details", current.name, current.start, current.dueDate, current.finish, String.valueOf((int) (current.progress * 100)), current.subject, updatedAssignment -> {
+            updatedAssignment.completed = (updatedAssignment.progress == 1.0);
             pane.setUserData(updatedAssignment);
             pane.setText(updatedAssignment.name);
             detailsLabel.setText(updatedAssignment.toString());
@@ -288,7 +283,6 @@ public class LockedInnApp extends Application {
             Button editButton = new Button("Edit");
 
             editButton.setOnAction(e -> {
-
             });
             subject.getChildren().add(subjectNameLabel);
             subject.getChildren().add(editButton);
@@ -328,24 +322,28 @@ public class LockedInnApp extends Application {
         String finish;
         double progress;
         String subject;
+        LocalDate dueDate;
         boolean completed;
 
-        Assignment(String name, String start, String finish, double progress, String subject) {
+        Assignment(String name, String start, String finish, double progress, String subject, LocalDate dueDate) {
             this.name = name;
             this.start = start;
             this.finish = finish;
             this.progress = progress;
             this.subject = subject;
+            this.dueDate = dueDate;
             this.completed = false;
         }
 
         @Override
         public String toString() {
-            return "(Start: " + start + ", Finish: " + finish + ", Progress: " + progress + ")";
+            int progressPercent = (int) (progress * 100);
+            return "(Start: " + start + ", Finish: " + finish + ", Progress: " + progressPercent + "%, Due: " + dueDate + ")";
         }
 
         public String compileInfo() {
-            return name + "-" + start + "-" + finish + "-" + progress + "-" + subject + "-" + completed;
+            int progressPercent = (int) (progress * 100);
+            return name + "-" + start + "-" + finish + "-" + progressPercent + "-" + subject + "-" + dueDate + "-" + completed;
         }
     }
 }
