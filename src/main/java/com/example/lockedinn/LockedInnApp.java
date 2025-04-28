@@ -13,10 +13,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Consumer;
@@ -31,7 +28,7 @@ public class LockedInnApp extends Application {
     ScrollPane subjectPanel;
     Accordion assignments;
     VBox subjectBox;
-    Accordion subjectWidgets;
+//    Accordion subjectWidgets;
 
     int buttonPanelSpacing = 15;
     int buttonPanelHeight = 50;
@@ -81,21 +78,13 @@ public class LockedInnApp extends Application {
         assignmentPanel.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         assignmentPanel.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
-        subjectWidgets = new Accordion();
-        subjectWidgets.setMinWidth(subjectPanelWidth);
-        subjectPanel = new ScrollPane(subjectWidgets);
-        subjectPanel.setPrefHeight(subjectPanelHeight);
-        subjectPanel.setPrefWidth(subjectPanelWidth);
-        subjectPanel.setStyle("-fx-background-color:#452103;");
+//        subjectWidgets = new Accordion();
+//        subjectWidgets.setMinWidth(subjectPanelWidth);
+//        subjectPanel = new ScrollPane(subjectWidgets);
+//        subjectPanel.setPrefHeight(subjectPanelHeight);
+//        subjectPanel.setPrefWidth(subjectPanelWidth);
+//        subjectPanel.setStyle("-fx-background-color:#452103;");
 
-        //not 100% sure what the heck this is :) - Sri K.
-//        VBox temporary = new VBox();
-//        temporary.setPrefHeight(475);
-//        temporary.setPrefWidth(950);
-//        temporary.setStyle("-fx-background-color: #C1014E;");
-
-        //Subject panel on the right
-//        Text subjectHeader = new Text("Subject Panel");
         subjectBox = new VBox(15);
         subjectPanel = new ScrollPane(subjectBox);
         subjectPanel.setPrefHeight(675);
@@ -103,6 +92,68 @@ public class LockedInnApp extends Application {
         subjectPanel.setStyle("-fx-background: #284520ff;");
         subjectPanel.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         subjectPanel.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+
+        //adding subjects and assignments from the file
+        try {
+            Scanner scan = new Scanner(new File("SubjectsFile.txt"));
+            while (scan.hasNextLine()) {
+                String[] parts = scan.nextLine().split(" ");
+                String[] rgb = parts[1].split(",");
+                Color color = Color.color(Double.parseDouble(rgb[0]), Double.parseDouble(rgb[1]), Double.parseDouble(rgb[2]));
+                subjects.put(parts[0], color);
+
+                HBox subject = new HBox(15);
+                Label subjectNameLabel = new Label(parts[0]);
+                Button editButton = new Button("Edit");
+                editButton.setOnAction(e -> {
+                });
+                subject.getChildren().add(subjectNameLabel);
+                subject.getChildren().add(editButton);
+                subject.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
+                subjectBox.getChildren().add(subject);
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Couldn't pull from subject file, file was not found");
+        }
+
+        try {
+            Scanner scan = new Scanner(new File("AssignmentsFile.txt"));
+            while (scan.hasNextLine()) {
+                String[] parts = scan.nextLine().split("=");
+
+                if (parts[0].equals("true")) {
+                    TitledPane pane = new TitledPane();
+                    pane.setText(parts[2]);
+                    Label detailsLabel = new Label(parts[3]);
+                    Button editButton = new Button("Edit");
+                    editButton.setOnAction(ev -> openAssignmentEditingDialog(pane, detailsLabel));
+                    CheckBox completeCheckBox = new CheckBox("Complete");
+                    completeCheckBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
+                        Assignment assignment = (Assignment) pane.getUserData();
+                        assignment.completed = isNowSelected;
+                        if (isNowSelected) {
+                            detailsLabel.setStyle("-fx-text-fill: gray; -fx-strikethrough: true;");
+                        } else {
+                            detailsLabel.setStyle("");
+                        }
+                    });
+                    ProgressBar progressBar = new ProgressBar(Double.parseDouble(parts[1]));
+                    progressBar.setPrefWidth(150);
+                    HBox assignmentRow = new HBox(10, completeCheckBox, detailsLabel, progressBar, editButton);
+                    assignmentRow.setAlignment(Pos.CENTER_LEFT);
+                    pane.setContent(assignmentRow);
+                    Color subjectColor = subjects.get(parts[4]);
+                    if (subjectColor != null) {
+                        assignmentRow.setBackground(new Background(new BackgroundFill(subjectColor, CornerRadii.EMPTY, Insets.EMPTY)));
+                    }
+                    Assignment assignment = new Assignment(parts[2], Double.parseDouble(parts[1]), parts[4], parts[3]);
+                    pane.setUserData(assignment);
+                    assignments.getPanes().add(pane);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Couldn't pull from assignment file, file was not found");
+        }
 
         GridPane root = new GridPane();
         root.setStyle("-fx-background-color: BLACK;");
@@ -140,7 +191,6 @@ public class LockedInnApp extends Application {
         grid.add(dateSelector, 1, 5);
         grid.add(new Label("Subject:"), 0, 6);
         grid.add(localSubjectSelector, 1, 6);
-
         ColumnConstraints col0 = new ColumnConstraints();
         col0.setPercentWidth(40);
         ColumnConstraints col1 = new ColumnConstraints();
@@ -150,7 +200,7 @@ public class LockedInnApp extends Application {
         return grid;
     }
 
-    private void showAssignmentDialog(String title, String headerText, String initialName, String initialStart, LocalDate ignoredDate, String initialFinish, String initialProgress, String subject, Consumer<Assignment> onSave) {
+    private void showAssignmentDialog(String title, String headerText, String initialName, String initialStart, LocalDate initialDueDate, String initialFinish, String initialProgress, String subject, Consumer<Assignment> onSave) {
         Stage dialogStage = new Stage();
         dialogStage.setTitle(title);
         Label headerLabel = new Label(headerText);
@@ -168,6 +218,7 @@ public class LockedInnApp extends Application {
         }
         GridPane grid = createAssignmentDetailsGrid(nameField, startField, finishField, progressFieldOne, progressFieldTwo, localSubjectSelector);
         Button saveButton = new Button("Save");
+
         saveButton.setOnAction(e -> {
             String newName = nameField.getText();
             String newStart = startField.getText();
@@ -186,6 +237,8 @@ public class LockedInnApp extends Application {
             } catch (NumberFormatException ex) {
                 progressValue = 0.0;
             }
+            boolean autoComplete = (progressValue == 1.0);
+            LocalDate dueDate = dueDatePicker.getValue();
             String newSubject = localSubjectSelector.getValue() != null ? localSubjectSelector.getValue() : "";
             Assignment updatedAssignment = new Assignment(newName, newStart, newFinish, progressValue, newSubject, inputDate);
             onSave.accept(updatedAssignment);
@@ -236,8 +289,8 @@ public class LockedInnApp extends Application {
 
     private void openAssignmentEditingDialog(TitledPane pane, Label detailsLabel) {
         Assignment current = (Assignment) pane.getUserData();
-        showAssignmentDialog("Edit Assignment", "Edit Assignment Details", current.name, current.start, inputDate, current.finish, String.valueOf((int) (current.progress * 100)), current.subject, updatedAssignment -> {
-            updatedAssignment.completed = current.completed;
+        showAssignmentDialog("Edit Assignment", "Edit Assignment Details", current.name, current.start, current.dueDate, current.finish, String.valueOf((int) (current.progress * 100)), current.subject, updatedAssignment -> {
+            updatedAssignment.completed = (updatedAssignment.progress == 1.0);
             pane.setUserData(updatedAssignment);
             pane.setText(updatedAssignment.name);
             detailsLabel.setText(updatedAssignment.toString());
@@ -269,6 +322,14 @@ public class LockedInnApp extends Application {
         TextField subjectNameField = new TextField();
         Label colorPromptLabel = new Label("Pick a Color:");
         ColorPicker colorPicker = new ColorPicker();
+        Button finishSubjectButton = getButton(subjectNameField, colorPicker, subjectCreation);
+
+        subjectCreationPanel.getChildren().addAll(subjectPromptLabel, subjectNameField, colorPromptLabel, colorPicker, finishSubjectButton);
+        subjectCreation.getContent().add(subjectCreationPanel);
+        subjectCreation.show(primaryStage);
+    }
+
+    private @NotNull Button getButton(TextField subjectNameField, ColorPicker colorPicker, Popup subjectCreation) {
         Button finishSubjectButton = new Button("Finish");
 
         finishSubjectButton.setOnAction(event -> {
@@ -286,17 +347,13 @@ public class LockedInnApp extends Application {
             Button editButton = new Button("Edit");
 
             editButton.setOnAction(e -> {
-
             });
             subject.getChildren().add(subjectNameLabel);
             subject.getChildren().add(editButton);
             subject.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
             subjectBox.getChildren().add(subject);
         });
-
-        subjectCreationPanel.getChildren().addAll(subjectPromptLabel, subjectNameField, colorPromptLabel, colorPicker, finishSubjectButton);
-        subjectCreation.getContent().add(subjectCreationPanel);
-        subjectCreation.show(primaryStage);
+        return finishSubjectButton;
     }
 
     @Override
@@ -309,8 +366,14 @@ public class LockedInnApp extends Application {
                 sfw.newLine();
             }
             sfw.close();
+
             File assignmentFile = new File("AssignmentsFile.txt");
             BufferedWriter afw = new BufferedWriter(new FileWriter(assignmentFile));
+            for (TitledPane pane : assignments.getPanes()) {
+                Assignment temp = (Assignment) pane.getUserData();
+                afw.write(temp.compileInfo());
+                afw.newLine();
+            }
             afw.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -323,22 +386,39 @@ public class LockedInnApp extends Application {
         String finish;
         double progress;
         String subject;
+        LocalDate dueDate;
         boolean completed;
         LocalDate inputDate;
-
         Assignment(String name, String start, String finish, double progress, String subject, LocalDate inputDate) {
             this.name = name;
             this.start = start;
             this.finish = finish;
             this.progress = progress;
             this.subject = subject;
+            this.dueDate = dueDate;
             this.completed = false;
             this.inputDate = inputDate;
         }
 
+        Assignment(String name, double progress, String subject, String data) {
+            this.name = name;
+            this.progress = progress;
+            this.subject = subject;
+            this.start = data.split(",")[0].split(" ")[1];
+            this.finish = data.split(",")[1].split(" ")[1];
+            this.dueDate = LocalDate.parse(data.split(",")[3].split(" ")[1]);
+        }
+
         @Override
         public String toString() {
-            return "(Start: " + start + ", Finish: " + finish + ", Progress: " + progress + ")";
+            int progressPercent = (int) (progress * 100);
+            return "(Start: " + start + ", Finish: " + finish + ", Progress: " + progressPercent + "%, Due: " + dueDate + ")";
+        }
+
+        public String compileInfo() {
+            int progressPercent = (int) (progress * 100);
+//            return name + "-" + start + "-" + finish + "-" + progressPercent + "-" + subject + "-" + dueDate + "-" + completed;
+            return completed + "=" + progressPercent + "=" + name + "=" + this + "=" + subject;
         }
 
         @Override
