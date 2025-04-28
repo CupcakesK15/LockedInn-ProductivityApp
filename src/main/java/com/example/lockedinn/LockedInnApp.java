@@ -15,10 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class LockedInnApp extends Application {
@@ -44,8 +41,8 @@ public class LockedInnApp extends Application {
     int subjectPanelHeight = 675;
     int subjectPanelWidth = 596;
     int sceneFrameHeight = 70;
-
-    LocalDate inputDate = LocalDate.now();
+    LocalDate inputDate;
+    DatePicker dateSelector = new DatePicker();
 
     public static void main(String[] args) {
         launch(args);
@@ -174,7 +171,7 @@ public class LockedInnApp extends Application {
         primaryStage.show();
     }
 
-    private GridPane createAssignmentDetailsGrid(TextField nameField, TextField startField, TextField finishField, TextField progressField, DatePicker dueDatePicker, ComboBox<String> localSubjectSelector) {
+    private GridPane createAssignmentDetailsGrid(TextField nameField, TextField startField, TextField finishField, TextField progressFieldOne, TextField progressFieldTwo, ComboBox<String> localSubjectSelector) {
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(20));
         grid.setHgap(10);
@@ -186,13 +183,14 @@ public class LockedInnApp extends Application {
         grid.add(startField, 1, 1);
         grid.add(new Label("Finish Point:"), 0, 2);
         grid.add(finishField, 1, 2);
-        grid.add(new Label("Progress (%):"), 0, 3);
-        grid.add(progressField, 1, 3);
-        grid.add(new Label("Due Date:"), 0, 4);
-        grid.add(dueDatePicker, 1, 4);
-        grid.add(new Label("Subject:"), 0, 5);
-        grid.add(localSubjectSelector, 1, 5);
-
+        grid.add(new Label("Progress (#):"), 0, 3);
+        grid.add(progressFieldOne, 1, 3);
+        grid.add(new Label("Progress (%):"), 0, 4);
+        grid.add(progressFieldTwo, 1, 4);
+        grid.add(new Label("Day Due:"), 0, 5);
+        grid.add(dateSelector, 1, 5);
+        grid.add(new Label("Subject:"), 0, 6);
+        grid.add(localSubjectSelector, 1, 6);
         ColumnConstraints col0 = new ColumnConstraints();
         col0.setPercentWidth(40);
         ColumnConstraints col1 = new ColumnConstraints();
@@ -210,38 +208,44 @@ public class LockedInnApp extends Application {
         TextField nameField = new TextField(initialName);
         TextField startField = new TextField(initialStart);
         TextField finishField = new TextField(initialFinish);
-        TextField progressField = new TextField(initialProgress);
-        DatePicker dueDatePicker = new DatePicker(initialDueDate);
+        TextField progressFieldOne = new TextField(initialProgress);
+        TextField progressFieldTwo = new TextField(initialProgress);
         ComboBox<String> localSubjectSelector = new ComboBox<>();
         localSubjectSelector.getItems().addAll(subjects.keySet());
         localSubjectSelector.setVisibleRowCount(5);
         if (subject != null && !subject.isEmpty()) {
             localSubjectSelector.setValue(subject);
         }
-        GridPane grid = createAssignmentDetailsGrid(nameField, startField, finishField, progressField, dueDatePicker, localSubjectSelector);
+        GridPane grid = createAssignmentDetailsGrid(nameField, startField, finishField, progressFieldOne, progressFieldTwo, localSubjectSelector);
         Button saveButton = new Button("Save");
 
         saveButton.setOnAction(e -> {
             String newName = nameField.getText();
             String newStart = startField.getText();
             String newFinish = finishField.getText();
-            String progressText = progressField.getText();
+            String progressTextOne = progressFieldOne.getText();
+            String progressTextTwo = progressFieldTwo.getText();
+            inputDate = dateSelector.getValue();
+            newName = newName + " " + inputDate.toString();
+            List<AssignmentPane> list = new ArrayList<AssignmentPane>();
+            assignments.getPanes();
+            //list.addAll(;
+            Collections.sort(list);
             double progressValue;
             try {
-                progressValue = Math.min(1.0, Math.max(0.0, Double.parseDouble(progressText) / 100.0));
+                progressValue = Math.min(1.0, Math.max(0.0, Double.parseDouble(progressTextTwo) / 100.0));
             } catch (NumberFormatException ex) {
                 progressValue = 0.0;
             }
             boolean autoComplete = (progressValue == 1.0);
             LocalDate dueDate = dueDatePicker.getValue();
             String newSubject = localSubjectSelector.getValue() != null ? localSubjectSelector.getValue() : "";
-            Assignment updatedAssignment = new Assignment(newName, newStart, newFinish, progressValue, newSubject, dueDate);
-            updatedAssignment.completed = autoComplete;
+            Assignment updatedAssignment = new Assignment(newName, newStart, newFinish, progressValue, newSubject, inputDate);
             onSave.accept(updatedAssignment);
             System.out.println("Assignment Saved: " + updatedAssignment);
             dialogStage.close();
         });
-        grid.add(saveButton, 0, 6, 2, 1);
+        grid.add(saveButton, 0, 7, 2, 1);
         GridPane.setMargin(saveButton, new Insets(10, 0, 0, 0));
         saveButton.setMaxWidth(Double.MAX_VALUE);
         VBox dialogLayout = new VBox(10, headerLabel, grid);
@@ -376,7 +380,7 @@ public class LockedInnApp extends Application {
         }
     }
 
-    private static class Assignment {
+    private static class Assignment implements Comparable<Assignment> {
         String name;
         String start;
         String finish;
@@ -384,8 +388,8 @@ public class LockedInnApp extends Application {
         String subject;
         LocalDate dueDate;
         boolean completed;
-
-        Assignment(String name, String start, String finish, double progress, String subject, LocalDate dueDate) {
+        LocalDate inputDate;
+        Assignment(String name, String start, String finish, double progress, String subject, LocalDate inputDate) {
             this.name = name;
             this.start = start;
             this.finish = finish;
@@ -393,6 +397,7 @@ public class LockedInnApp extends Application {
             this.subject = subject;
             this.dueDate = dueDate;
             this.completed = false;
+            this.inputDate = inputDate;
         }
 
         Assignment(String name, double progress, String subject, String data) {
@@ -415,5 +420,27 @@ public class LockedInnApp extends Application {
 //            return name + "-" + start + "-" + finish + "-" + progressPercent + "-" + subject + "-" + dueDate + "-" + completed;
             return completed + "=" + progressPercent + "=" + name + "=" + this + "=" + subject;
         }
+
+        @Override
+        public int compareTo(Assignment o) {
+            return this.inputDate.compareTo(o.inputDate);
+        }
+    }
+
+    private static class AssignmentPane extends TitledPane implements Comparable<AssignmentPane> {
+        private final Assignment assignment;
+
+        public AssignmentPane(Assignment assignment) {
+            super();
+            this.setText(assignment.name);
+            this.assignment = assignment;
+        }
+
+        @Override
+        public int compareTo(AssignmentPane other) {
+            if (other == null) return -1;
+            return this.assignment.compareTo(other.assignment);
+        }
+
     }
 }
