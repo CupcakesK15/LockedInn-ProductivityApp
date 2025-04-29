@@ -24,7 +24,7 @@ public class LockedInnApp extends Application {
     HashSet<Color> colors = new HashSet<>();
 
     Stage primaryStage;
-    ScrollPane assignmentPanel;
+    AssignmentPanel assignmentPanel;
     ScrollPane subjectPanel;
     Accordion assignments;
     VBox subjectBox;
@@ -70,7 +70,8 @@ public class LockedInnApp extends Application {
 
         assignments = new Accordion();
         assignments.setMinWidth(assignmentPanelWidth);
-        assignmentPanel = new ScrollPane(assignments);
+        assignmentPanel = new AssignmentPanel();
+        assignmentPanel.setContent(assignments);
         assignmentPanel.setPrefHeight(assignmentPanelHeight);
         assignmentPanel.setPrefWidth(assignmentPanelWidth);
         assignmentPanel.setStyle("-fx-background: #452103;");
@@ -223,16 +224,22 @@ public class LockedInnApp extends Application {
             int total = Integer.parseInt(finishField.getText());
             double percent = ((double) progress / total);
             LocalDate inputDate = dateSelector.getValue();
+            String newSubject = localSubjectSelector.getValue() != null ? localSubjectSelector.getValue() : "";
+            Assignment updatedAssignment = new Assignment(newName, newStart, newFinish, percent, newSubject, inputDate);
+            onSave.accept(updatedAssignment);
+            System.out.println("Assignment Saved: " + updatedAssignment);
             List<AssignmentPane> list = new ArrayList<AssignmentPane>();
-            assignments.getPanes().removeAll();
             for (TitledPane x : assignments.getPanes()) {
                 list.add((AssignmentPane) x);
             }
-            //LocalDate dueDate = dueDatePicker.getValue();
-            String newSubject = localSubjectSelector.getValue() != null ? localSubjectSelector.getValue() : "";
-            Assignment updatedAssignment = new Assignment(newName + " " + inputDate.toString(), newStart, newFinish, percent, newSubject, inputDate);
-            onSave.accept(updatedAssignment);
-            System.out.println("Assignment Saved: " + updatedAssignment);
+            Collections.sort(list);
+            assignments.getPanes().removeAll();
+            assignments.getPanes().setAll(list);
+            List<Accordion> accordionList = new ArrayList<Accordion>();
+            accordionList.add(assignments);
+            assignmentPanel.getChildren().removeAll();
+            //assignmentPanel.getChildren().setAll(accordionList);
+            assignmentPanel.setContent(assignments);
             dialogStage.close();
         });
         grid.add(saveButton, 0, 7, 2, 1);
@@ -272,16 +279,17 @@ public class LockedInnApp extends Application {
                 assignmentRow.setBackground(new Background(new BackgroundFill(subjectColor, CornerRadii.EMPTY, Insets.EMPTY)));
             }
             pane.setUserData(updatedAssignment);
+            pane.setText(updatedAssignment.name + " - Due Date: " + updatedAssignment.dueDate);
             assignments.getPanes().add(pane);
         });
     }
 
     private void openAssignmentEditingDialog(TitledPane pane, Label detailsLabel) {
         Assignment current = (Assignment) pane.getUserData();
-        showAssignmentDialog("Edit Assignment", "Edit Assignment Details", current.name, current.start, current.finish, String.valueOf((int) (current.progress * 100)), current.subject, updatedAssignment -> {
+        showAssignmentDialog("Edit Assignment", "Edit Assignment Details", current.name, current.start, current.finish, String.valueOf((int) (current.progress * 10)), current.subject, updatedAssignment -> {
             updatedAssignment.completed = (updatedAssignment.progress == 1.0);
             pane.setUserData(updatedAssignment);
-            pane.setText(updatedAssignment.name);
+            pane.setText(updatedAssignment.name + " - Due Date: " + updatedAssignment.dueDate);
             detailsLabel.setText(updatedAssignment.toString());
             Color subjectColor = subjects.get(updatedAssignment.subject);
             if (subjectColor != null) {
@@ -377,7 +385,6 @@ public class LockedInnApp extends Application {
         String subject;
         LocalDate dueDate;
         boolean completed;
-        LocalDate inputDate;
 
         Assignment(String name, String start, String finish, double progress, String subject, LocalDate dueDate) {
             this.name = name;
@@ -412,7 +419,7 @@ public class LockedInnApp extends Application {
 
         @Override
         public int compareTo(Assignment o) {
-            return this.inputDate.compareTo(o.inputDate);
+            return this.dueDate.compareTo(o.dueDate);
         }
     }
 
@@ -429,6 +436,29 @@ public class LockedInnApp extends Application {
         public int compareTo(AssignmentPane other) {
             if (other == null) return -1;
             return this.assignment.compareTo(other.assignment);
+        }
+
+    }
+
+    private static class AssignmentPanel extends ScrollPane {
+        //private final AssignmentPane assignmentPane;
+
+        public AssignmentPanel() {
+            super();
+        }
+
+        /*
+        @Override
+        public int compareTo(AssignmentPanel other) {
+            if (other == null) return -1;
+            return this.assignmentPane.compareTo(other.assignmentPane);
+        }
+         */
+
+        @Override
+        public javafx.collections.ObservableList
+                <javafx.scene.Node> getChildren() {
+            return super.getChildren();
         }
 
     }
