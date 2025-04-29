@@ -228,7 +228,6 @@ public class LockedInnApp extends Application {
             for (TitledPane x : assignments.getPanes()) {
                 list.add((AssignmentPane) x);
             }
-            //Collections.sort(list);
             //LocalDate dueDate = dueDatePicker.getValue();
             String newSubject = localSubjectSelector.getValue() != null ? localSubjectSelector.getValue() : "";
             Assignment updatedAssignment = new Assignment(newName + " " + inputDate.toString(), newStart, newFinish, percent, newSubject, inputDate);
@@ -249,8 +248,7 @@ public class LockedInnApp extends Application {
 
     private void openAssignmentCreationDialog() {
         showAssignmentDialog("Create Assignment", "Enter Assignment Details", "", "", "", "", "", updatedAssignment -> {
-            TitledPane pane = new TitledPane();
-            pane.setText(updatedAssignment.name);
+            AssignmentPane pane = new AssignmentPane(updatedAssignment);
             Label detailsLabel = new Label(updatedAssignment.toString());
             Button editButton = new Button("Edit");
             editButton.setOnAction(ev -> openAssignmentEditingDialog(pane, detailsLabel));
