@@ -1,2 +1,0 @@
-false=50=Math=(Start: 1, Finish: 10, Progress: 50%, Due: 2025-04-29)=
-false=50=English=(Start: 1, Finish: 10, Progress: 50%, Due: 2025-04-28)=

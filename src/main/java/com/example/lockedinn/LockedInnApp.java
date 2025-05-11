@@ -78,13 +78,6 @@ public class LockedInnApp extends Application {
         assignmentPanel.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         assignmentPanel.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
-//        subjectWidgets = new Accordion();
-//        subjectWidgets.setMinWidth(subjectPanelWidth);
-//        subjectPanel = new ScrollPane(subjectWidgets);
-//        subjectPanel.setPrefHeight(subjectPanelHeight);
-//        subjectPanel.setPrefWidth(subjectPanelWidth);
-//        subjectPanel.setStyle("-fx-background-color:#452103;");
-
         subjectBox = new VBox(15);
         subjectPanel = new ScrollPane(subjectBox);
         subjectPanel.setPrefHeight(675);
@@ -121,33 +114,33 @@ public class LockedInnApp extends Application {
             while (scan.hasNextLine()) {
                 String[] parts = scan.nextLine().split("=");
 
-                if (parts[0].equals("true")) {
-                    TitledPane pane = new TitledPane();
-                    pane.setText(parts[2]);
-                    Label detailsLabel = new Label(parts[3]);
+                if (!parts[0].equals("true")) {
+                    Assignment assignment = new Assignment(parts[1], parts[2], parts[3], Double.parseDouble(parts[4]), parts[5], LocalDate.parse(parts[6]));
+                    AssignmentPane pane = new AssignmentPane(assignment);
+                    Label detailsLabel = new Label(assignment.toString());
                     Button editButton = new Button("Edit");
                     editButton.setOnAction(ev -> openAssignmentEditingDialog(pane, detailsLabel));
                     CheckBox completeCheckBox = new CheckBox("Complete");
                     completeCheckBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
-                        Assignment assignment = (Assignment) pane.getUserData();
-                        assignment.completed = isNowSelected;
+                        Assignment assignment2 = (Assignment) pane.getUserData();
+                        assignment2.completed = isNowSelected;
                         if (isNowSelected) {
                             detailsLabel.setStyle("-fx-text-fill: gray; -fx-strikethrough: true;");
                         } else {
                             detailsLabel.setStyle("");
                         }
                     });
-                    ProgressBar progressBar = new ProgressBar(Double.parseDouble(parts[1]));
+                    ProgressBar progressBar = new ProgressBar(assignment.progress);
                     progressBar.setPrefWidth(150);
                     HBox assignmentRow = new HBox(10, completeCheckBox, detailsLabel, progressBar, editButton);
                     assignmentRow.setAlignment(Pos.CENTER_LEFT);
                     pane.setContent(assignmentRow);
-                    Color subjectColor = subjects.get(parts[4]);
+                    Color subjectColor = subjects.get(assignment.subject);
                     if (subjectColor != null) {
                         assignmentRow.setBackground(new Background(new BackgroundFill(subjectColor, CornerRadii.EMPTY, Insets.EMPTY)));
                     }
-                    Assignment assignment = new Assignment(parts[2], Double.parseDouble(parts[1]), parts[4], parts[3]);
                     pane.setUserData(assignment);
+                    pane.setText(assignment.name + " - Due Date: " + assignment.dueDate);
                     assignments.getPanes().add(pane);
                 }
             }
@@ -414,7 +407,8 @@ public class LockedInnApp extends Application {
         public String compileInfo() {
             int progressPercent = (int) (progress * 100);
 //            return name + "-" + start + "-" + finish + "-" + progressPercent + "-" + subject + "-" + dueDate + "-" + completed;
-            return completed + "=" + progressPercent + "=" + name + "=" + this + "=" + subject;
+            //return completed + "=" + name + "=" + progress + "=" + this + "=" + subject;
+            return completed + "=" + name + "=" + start + "=" + finish + "=" + progress + "=" + subject + "=" + dueDate;
         }
 
         @Override
