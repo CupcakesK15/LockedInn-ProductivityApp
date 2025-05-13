@@ -7,13 +7,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Consumer;
@@ -28,17 +28,13 @@ public class LockedInnApp extends Application {
     ScrollPane subjectPanel;
     Accordion assignments;
     VBox subjectBox;
-//    Accordion subjectWidgets;
 
     int buttonPanelSpacing = 15;
     int buttonPanelHeight = 50;
     int buttonPanelPadding = 10;
-    int musicPanelSpacing = 20;
-    int musicPanelHeight = 75;
-    int musicPanelPadding = 10;
-    int assignmentPanelHeight = 675;
+    int assignmentPanelHeight = 750;
     int assignmentPanelWidth = 950;
-    int subjectPanelHeight = 675;
+    int subjectPanelHeight = 750;
     int subjectPanelWidth = 596;
     int sceneFrameHeight = 70;
     DatePicker dateSelector = new DatePicker();
@@ -63,12 +59,9 @@ public class LockedInnApp extends Application {
         buttonPanel.setPadding(new Insets(buttonPanelPadding));
         buttonPanel.getChildren().addAll(createAssignmentButton, createSubjectLabel, deleteSubjectLabel);
 
-        Text music = new Text("Music");
-        HBox musicPanel = new HBox(musicPanelSpacing);
-        musicPanel.setPrefHeight(musicPanelHeight);
-        musicPanel.setPadding(new Insets(musicPanelPadding));
-        musicPanel.setStyle("-fx-background-color: #C2914F;");
-        musicPanel.getChildren().add(music);
+        Class testClass = getClass();
+        URL url = testClass.getClassLoader().getResource("gridPaneStyle.css");
+        String css = url.toExternalForm();
 
         assignments = new Accordion();
         assignments.setMinWidth(assignmentPanelWidth);
@@ -76,15 +69,17 @@ public class LockedInnApp extends Application {
         assignmentPanel.setContent(assignments);
         assignmentPanel.setPrefHeight(assignmentPanelHeight);
         assignmentPanel.setPrefWidth(assignmentPanelWidth);
-        assignmentPanel.setStyle("-fx-background: #452103;");
+        assignmentPanel.getStylesheets().addAll(css);
         assignmentPanel.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         assignmentPanel.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
-        subjectBox = new VBox(15);
+        double vBoxSpacing = 15;
+        subjectBox = new VBox(vBoxSpacing);
+        subjectBox.getStylesheets().addAll(css);
         subjectPanel = new ScrollPane(subjectBox);
-        subjectPanel.setPrefHeight(675);
-        subjectPanel.setPrefWidth(596);
-        subjectPanel.setStyle("-fx-background: #284520ff;");
+        subjectPanel.setPrefHeight(subjectPanelHeight);
+        subjectPanel.setPrefWidth(subjectPanelWidth);
+        subjectPanel.getStylesheets().addAll(css);
         subjectPanel.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         subjectPanel.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
@@ -97,8 +92,16 @@ public class LockedInnApp extends Application {
                 Color color = Color.color(Double.parseDouble(rgb[0]), Double.parseDouble(rgb[1]), Double.parseDouble(rgb[2]));
                 subjects.put(parts[0], color);
 
-                HBox subject = new HBox(50);
+                double subjectBoxSpacing = 50;
+                HBox subject = new HBox(subjectBoxSpacing);
+                subject.setMinWidth(subjectPanelWidth);
                 Label subjectNameLabel = new Label(parts[0]);
+                double brightness = (color.getRed() * .2126) + (color.getGreen() * .7152) + (color.getBlue() * .0722);
+                if (brightness >= 128) {
+                    subjectNameLabel.setTextFill(Color.WHITE);
+                } else {
+                    subjectNameLabel.setTextFill(Color.BLACK);
+                }
                 subject.getChildren().add(subjectNameLabel);
                 subject.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
                 subjectBox.getChildren().add(subject);
@@ -128,9 +131,11 @@ public class LockedInnApp extends Application {
                             detailsLabel.setStyle("");
                         }
                     });
+                    double progressBarWidth = 150;
+                    double assignmentRowSpacing = 10;
                     ProgressBar progressBar = new ProgressBar(assignment.progress);
-                    progressBar.setPrefWidth(150);
-                    HBox assignmentRow = new HBox(10, completeCheckBox, detailsLabel, progressBar, editButton);
+                    progressBar.setPrefWidth(progressBarWidth);
+                    HBox assignmentRow = new HBox(assignmentRowSpacing, completeCheckBox, detailsLabel, progressBar, editButton);
                     assignmentRow.setAlignment(Pos.CENTER_LEFT);
                     pane.setContent(assignmentRow);
                     Color subjectColor = subjects.get(assignment.subject);
@@ -145,13 +150,11 @@ public class LockedInnApp extends Application {
         } catch (FileNotFoundException e) {
             System.out.println("Couldn't pull from assignment file, file was not found");
         }
-
         GridPane root = new GridPane();
-        root.setStyle("-fx-background-color: BLACK;");
+        root.setStyle("-fx-background-image: url('https://images3.alphacoders.com/132/thumb-1920-1329171.png')");
         root.add(buttonPanel, 0, 0);
         root.add(assignmentPanel, 0, 1);
         root.add(subjectPanel, 1, 1, 1, 2);
-        root.add(musicPanel, 0, 3, 2, 1);
 
         int screenWidth = (int) Screen.getPrimary().getBounds().getWidth();
         int screenHeight = (int) Screen.getPrimary().getBounds().getHeight() - sceneFrameHeight;
@@ -163,10 +166,15 @@ public class LockedInnApp extends Application {
     }
 
     private GridPane createAssignmentDetailsGrid(TextField nameField, TextField startField, TextField finishField, TextField progressField, ComboBox<String> localSubjectSelector) {
+        double gridInsets = 20;
+        double gridHGap = 10;
+        double gridVGap = 10;
+        double col0percentWidth = 40;
+        double col1percentWidth = 60;
         GridPane grid = new GridPane();
-        grid.setPadding(new Insets(20));
-        grid.setHgap(10);
-        grid.setVgap(10);
+        grid.setPadding(new Insets(gridInsets));
+        grid.setHgap(gridHGap);
+        grid.setVgap(gridVGap);
         grid.setAlignment(Pos.CENTER);
         grid.add(new Label("Assignment Name:"), 0, 0);
         grid.add(nameField, 1, 0);
@@ -181,9 +189,9 @@ public class LockedInnApp extends Application {
         grid.add(new Label("Subject:"), 0, 5);
         grid.add(localSubjectSelector, 1, 5);
         ColumnConstraints col0 = new ColumnConstraints();
-        col0.setPercentWidth(40);
+        col0.setPercentWidth(col0percentWidth);
         ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPercentWidth(60);
+        col1.setPercentWidth(col1percentWidth);
         grid.getColumnConstraints().addAll(col0, col1);
 
         return grid;
@@ -226,19 +234,18 @@ public class LockedInnApp extends Application {
             Collections.sort(list);
             assignments.getPanes().removeAll();
             assignments.getPanes().setAll(list);
-            List<Accordion> accordionList = new ArrayList<Accordion>();
-            accordionList.add(assignments);
-            assignmentPanel.getChildren().removeAll();
-            //assignmentPanel.getChildren().setAll(accordionList);
-            assignmentPanel.setContent(assignments);
             dialogStage.close();
         });
+        double dialogLayoutSpacing = 10;
+        double dialogLayoutPadding = 20;
+        double dialogSceneWidth = 350;
+        double dialogSceneHeight = 350;
         grid.add(saveButton, 0, 7, 2, 1);
         GridPane.setMargin(saveButton, new Insets(10, 0, 0, 0));
         saveButton.setMaxWidth(Double.MAX_VALUE);
-        VBox dialogLayout = new VBox(10, headerLabel, grid);
-        dialogLayout.setPadding(new Insets(20));
-        Scene dialogScene = new Scene(dialogLayout, 350, 350);
+        VBox dialogLayout = new VBox(dialogLayoutSpacing, headerLabel, grid);
+        dialogLayout.setPadding(new Insets(dialogLayoutPadding));
+        Scene dialogScene = new Scene(dialogLayout, dialogSceneWidth, dialogSceneHeight);
         dialogStage.setScene(dialogScene);
         dialogStage.initOwner(primaryStage);
         dialogStage.show();
@@ -260,9 +267,11 @@ public class LockedInnApp extends Application {
                     detailsLabel.setStyle("");
                 }
             });
+            double progressBarWidth = 150;
+            double assignmentRowSpacing = 10;
             ProgressBar progressBar = new ProgressBar(updatedAssignment.progress);
-            progressBar.setPrefWidth(150);
-            HBox assignmentRow = new HBox(10, completeCheckBox, detailsLabel, progressBar, editButton);
+            progressBar.setPrefWidth(progressBarWidth);
+            HBox assignmentRow = new HBox(assignmentRowSpacing, completeCheckBox, detailsLabel, progressBar, editButton);
             assignmentRow.setAlignment(Pos.CENTER_LEFT);
             pane.setContent(assignmentRow);
             Color subjectColor = subjects.get(updatedAssignment.subject);
@@ -278,9 +287,10 @@ public class LockedInnApp extends Application {
     private void openAssignmentEditingDialog(TitledPane pane, Label detailsLabel) {
         Assignment current = (Assignment) pane.getUserData();
         showAssignmentDialog("Edit Assignment", "Edit Assignment Details", current.name, current.start, current.finish, String.valueOf((int) (current.progress * 10)), current.subject, updatedAssignment -> {
+            AssignmentPane paneTwo = new AssignmentPane(updatedAssignment);
             updatedAssignment.completed = (updatedAssignment.progress == 1.0);
-            pane.setUserData(updatedAssignment);
-            pane.setText(updatedAssignment.name + " - Due Date: " + updatedAssignment.dueDate);
+            paneTwo.setUserData(updatedAssignment);
+            paneTwo.setText(updatedAssignment.name + " - Due Date: " + updatedAssignment.dueDate);
             detailsLabel.setText(updatedAssignment.toString());
             Color subjectColor = subjects.get(updatedAssignment.subject);
             if (subjectColor != null) {
@@ -296,14 +306,19 @@ public class LockedInnApp extends Application {
             } else {
                 detailsLabel.setStyle("");
             }
+            paneTwo.setContent(row);
+
+            assignments.getPanes().add(paneTwo);
+            assignments.getPanes().remove(pane);
         });
     }
 
     private void subjectLabelCreation() {
+        double subjectCreationPanelSpacing = 50;
+        double subjectCreationPanelPadding = 5;
         Popup subjectCreation = new Popup();
-
-        HBox subjectCreationPanel = new HBox(50);
-        subjectCreationPanel.setPadding(new Insets(5));
+        HBox subjectCreationPanel = new HBox(subjectCreationPanelSpacing);
+        subjectCreationPanel.setPadding(new Insets(subjectCreationPanelPadding));
         subjectCreationPanel.setBackground(new Background(new BackgroundFill(Color.SPRINGGREEN, CornerRadii.EMPTY, Insets.EMPTY)));
 
         Label subjectPromptLabel = new Label("Subject Name:");
@@ -318,10 +333,11 @@ public class LockedInnApp extends Application {
     }
 
     private void deleteSubject() {
+        double subjectDeletionPanelSpacing = 30;
+        double subjectDeletionPanelPadding = 5;
         Popup subjectDeletion = new Popup();
-
-        HBox subjectDeletionPanel = new HBox(30);
-        subjectDeletionPanel.setPadding(new Insets(5));
+        HBox subjectDeletionPanel = new HBox(subjectDeletionPanelSpacing);
+        subjectDeletionPanel.setPadding(new Insets(subjectDeletionPanelPadding));
         subjectDeletionPanel.setBackground(new Background(new BackgroundFill(Color.SPRINGGREEN, CornerRadii.EMPTY, Insets.EMPTY)));
 
         Label subjectPromptLabel = new Label("Subject Name: ");
@@ -340,9 +356,12 @@ public class LockedInnApp extends Application {
     }
 
     private void deleteSubjectFromView() {
-        subjectBox = new VBox(10);
+        double subjectBoxSpacing = 10;
+        double subjectSpacing = 50;
+        subjectBox = new VBox(subjectBoxSpacing);
         for (Map.Entry<String, Color> entry : subjects.entrySet()) {
-            HBox subject = new HBox(50);
+            HBox subject = new HBox(subjectSpacing);
+            subject.setMinWidth(subjectPanelWidth);
             Label subjectNameLabel = new Label(entry.getKey());
             subject.getChildren().add(subjectNameLabel);
             subject.setBackground(new Background(new BackgroundFill(entry.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
@@ -364,7 +383,9 @@ public class LockedInnApp extends Application {
             System.out.println("Subjects updated: " + subjects);
             subjectCreation.hide();
 
-            HBox subject = new HBox(50);
+            double subjectSpacing = 50;
+            HBox subject = new HBox(subjectSpacing);
+            subject.setMinWidth(subjectPanelWidth);
             Label subjectNameLabel = new Label(subjectName);
             subject.getChildren().add(subjectNameLabel);
 
@@ -434,8 +455,6 @@ public class LockedInnApp extends Application {
 
         public String compileInfo() {
             int progressPercent = (int) (progress * 100);
-//            return name + "-" + start + "-" + finish + "-" + progressPercent + "-" + subject + "-" + dueDate + "-" + completed;
-            //return completed + "=" + name + "=" + progress + "=" + this + "=" + subject;
             return completed + "=" + name + "=" + start + "=" + finish + "=" + progress + "=" + subject + "=" + dueDate;
         }
 
@@ -463,19 +482,10 @@ public class LockedInnApp extends Application {
     }
 
     private static class AssignmentPanel extends ScrollPane {
-        //private final AssignmentPane assignmentPane;
 
         public AssignmentPanel() {
             super();
         }
-
-        /*
-        @Override
-        public int compareTo(AssignmentPanel other) {
-            if (other == null) return -1;
-            return this.assignmentPane.compareTo(other.assignmentPane);
-        }
-         */
 
         @Override
         public javafx.collections.ObservableList
