@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 
 public class LockedInnApp extends Application {
 
-    HashMap<String, Color> subjects = new HashMap<>();
+    TreeMap<String, Color> subjects = new TreeMap<>();
     HashSet<Color> colors = new HashSet<>();
 
     Stage primaryStage;
@@ -55,11 +55,13 @@ public class LockedInnApp extends Application {
         createAssignmentButton.setOnAction(event -> openAssignmentCreationDialog());
         Button createSubjectLabel = new Button("Create Subject Label");
         createSubjectLabel.setOnAction(event -> subjectLabelCreation());
+        Button deleteSubjectLabel = new Button("Delete Subject");
+        deleteSubjectLabel.setOnAction(event -> deleteSubject());
 
         HBox buttonPanel = new HBox(buttonPanelSpacing);
         buttonPanel.setPrefHeight(buttonPanelHeight);
         buttonPanel.setPadding(new Insets(buttonPanelPadding));
-        buttonPanel.getChildren().addAll(createAssignmentButton, createSubjectLabel);
+        buttonPanel.getChildren().addAll(createAssignmentButton, createSubjectLabel, deleteSubjectLabel);
 
         Text music = new Text("Music");
         HBox musicPanel = new HBox(musicPanelSpacing);
@@ -95,13 +97,9 @@ public class LockedInnApp extends Application {
                 Color color = Color.color(Double.parseDouble(rgb[0]), Double.parseDouble(rgb[1]), Double.parseDouble(rgb[2]));
                 subjects.put(parts[0], color);
 
-                HBox subject = new HBox(15);
+                HBox subject = new HBox(50);
                 Label subjectNameLabel = new Label(parts[0]);
-                Button editButton = new Button("Edit");
-                editButton.setOnAction(e -> {
-                });
                 subject.getChildren().add(subjectNameLabel);
-                subject.getChildren().add(editButton);
                 subject.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
                 subjectBox.getChildren().add(subject);
             }
@@ -304,7 +302,7 @@ public class LockedInnApp extends Application {
     private void subjectLabelCreation() {
         Popup subjectCreation = new Popup();
 
-        HBox subjectCreationPanel = new HBox(30);
+        HBox subjectCreationPanel = new HBox(50);
         subjectCreationPanel.setPadding(new Insets(5));
         subjectCreationPanel.setBackground(new Background(new BackgroundFill(Color.SPRINGGREEN, CornerRadii.EMPTY, Insets.EMPTY)));
 
@@ -317,6 +315,40 @@ public class LockedInnApp extends Application {
         subjectCreationPanel.getChildren().addAll(subjectPromptLabel, subjectNameField, colorPromptLabel, colorPicker, finishSubjectButton);
         subjectCreation.getContent().add(subjectCreationPanel);
         subjectCreation.show(primaryStage);
+    }
+
+    private void deleteSubject() {
+        Popup subjectDeletion = new Popup();
+
+        HBox subjectDeletionPanel = new HBox(30);
+        subjectDeletionPanel.setPadding(new Insets(5));
+        subjectDeletionPanel.setBackground(new Background(new BackgroundFill(Color.SPRINGGREEN, CornerRadii.EMPTY, Insets.EMPTY)));
+
+        Label subjectPromptLabel = new Label("Subject Name: ");
+        TextField subjectNameField = new TextField();
+        Button finishButton = new Button("Delete");
+        finishButton.setOnAction(ev -> {
+            String name = subjectNameField.getText();
+            subjects.remove(name);
+            deleteSubjectFromView();
+            subjectDeletion.hide();
+        });
+
+        subjectDeletionPanel.getChildren().addAll(subjectPromptLabel, subjectNameField, finishButton);
+        subjectDeletion.getContent().add(subjectDeletionPanel);
+        subjectDeletion.show(primaryStage);
+    }
+
+    private void deleteSubjectFromView() {
+        subjectBox = new VBox(10);
+        for (Map.Entry<String, Color> entry : subjects.entrySet()) {
+            HBox subject = new HBox(50);
+            Label subjectNameLabel = new Label(entry.getKey());
+            subject.getChildren().add(subjectNameLabel);
+            subject.setBackground(new Background(new BackgroundFill(entry.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
+            subjectBox.getChildren().add(subject);
+        }
+        subjectPanel.setContent(subjectBox);
     }
 
     private @NotNull Button getButton(TextField subjectNameField, ColorPicker colorPicker, Popup subjectCreation) {
@@ -332,14 +364,10 @@ public class LockedInnApp extends Application {
             System.out.println("Subjects updated: " + subjects);
             subjectCreation.hide();
 
-            HBox subject = new HBox(15);
+            HBox subject = new HBox(50);
             Label subjectNameLabel = new Label(subjectName);
-            Button editButton = new Button("Edit");
-
-            editButton.setOnAction(e -> {
-            });
             subject.getChildren().add(subjectNameLabel);
-            subject.getChildren().add(editButton);
+
             subject.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
             subjectBox.getChildren().add(subject);
         });
