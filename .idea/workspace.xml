@@ -4,8 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6bf28748-ce74-4b46-9d78-abf1d56c9cc0" name="Changes" comment="Debugging assignment ordering">
+    <list default="true" id="6bf28748-ce74-4b46-9d78-abf1d56c9cc0" name="Changes" comment="Fixed magic numbers and set background to tavern theme">
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_5_13_2025_1_02_AM_[Changes]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_5_13_2025_1_02_AM_[Changes]1/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_5_13_2025_1_02_AM__Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_5_13_2025_1_02_AM__Changes_1.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/src/main/resources/gridPaneStyle.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/org/openjfx/triumvirateeoy5/Tavern Theme Background - EOY.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AssignmentsFile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/AssignmentsFile.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SubjectsFile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/SubjectsFile.txt" afterDir="false" />
@@ -67,24 +72,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.LockedInnApp.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "code.cleanup.on.save": "true",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "rearrange.code.on.save": "true",
-    "settings.editor.selected.configurable": "project.propCompiler",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.LockedInnApp.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;code.cleanup.on.save&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;rearrange.code.on.save&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propCompiler&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\ashle\School\4 - Senior Year\CS3\Triumvirate-EOY-5\src\main\resources\org\openjfx\triumvirateeoy5" />
@@ -135,6 +140,7 @@
       <workItem from="1743151538432" duration="4840000" />
       <workItem from="1744643720006" duration="4329000" />
       <workItem from="1745894071981" duration="8532000" />
+      <workItem from="1747143418068" duration="312000" />
     </task>
     <task id="LOCAL-00002" summary="fixed assignment editing">
       <option name="closed" value="true" />
@@ -168,7 +174,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745891468609</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Fixed magic numbers and set background to tavern theme">
+      <option name="closed" value="true" />
+      <created>1747143584674</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1747143584674</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -191,7 +205,8 @@
     <MESSAGE value="fixed assignment editing" />
     <MESSAGE value="errors fixed" />
     <MESSAGE value="Edited structure of entering progress, worked on ordering assingments (Still has one bug)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Edited structure of entering progress, worked on ordering assingments (Still has one bug)" />
+    <MESSAGE value="Fixed magic numbers and set background to tavern theme" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed magic numbers and set background to tavern theme" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
