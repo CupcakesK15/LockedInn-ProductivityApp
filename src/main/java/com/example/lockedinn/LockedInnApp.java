@@ -59,9 +59,12 @@ public class LockedInnApp extends Application {
         buttonPanel.setPadding(new Insets(buttonPanelPadding));
         buttonPanel.getChildren().addAll(createAssignmentButton, createSubjectLabel, deleteSubjectLabel);
 
-        Class testClass = getClass();
+        Class<? extends LockedInnApp> testClass = getClass();
         URL url = testClass.getClassLoader().getResource("gridPaneStyle.css");
-        String css = url.toExternalForm();
+        String css = null;
+        if (url != null) {
+            css = url.toExternalForm();
+        }
 
         assignments = new Accordion();
         assignments.setMinWidth(assignmentPanelWidth);
@@ -96,8 +99,7 @@ public class LockedInnApp extends Application {
                 HBox subject = new HBox(subjectBoxSpacing);
                 subject.setMinWidth(subjectPanelWidth);
                 Label subjectNameLabel = new Label(parts[0]);
-                double brightness = (color.getRed() * .2126) + (color.getGreen() * .7152) + (color.getBlue() * .0722);
-                if (brightness >= 128) {
+                if (isDark(color)) {
                     subjectNameLabel.setTextFill(Color.WHITE);
                 } else {
                     subjectNameLabel.setTextFill(Color.BLACK);
@@ -227,7 +229,7 @@ public class LockedInnApp extends Application {
             Assignment updatedAssignment = new Assignment(newName, newStart, newFinish, percent, newSubject, inputDate);
             onSave.accept(updatedAssignment);
             System.out.println("Assignment Saved: " + updatedAssignment);
-            List<AssignmentPane> list = new ArrayList<AssignmentPane>();
+            List<AssignmentPane> list = new ArrayList<>();
             for (TitledPane x : assignments.getPanes()) {
                 list.add((AssignmentPane) x);
             }
@@ -363,6 +365,11 @@ public class LockedInnApp extends Application {
             HBox subject = new HBox(subjectSpacing);
             subject.setMinWidth(subjectPanelWidth);
             Label subjectNameLabel = new Label(entry.getKey());
+            if (isDark(entry.getValue())) {
+                subjectNameLabel.setTextFill(Color.WHITE);
+            } else {
+                subjectNameLabel.setTextFill(Color.BLACK);
+            }
             subject.getChildren().add(subjectNameLabel);
             subject.setBackground(new Background(new BackgroundFill(entry.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
             subjectBox.getChildren().add(subject);
@@ -387,12 +394,21 @@ public class LockedInnApp extends Application {
             HBox subject = new HBox(subjectSpacing);
             subject.setMinWidth(subjectPanelWidth);
             Label subjectNameLabel = new Label(subjectName);
+            if (isDark(color)) {
+                subjectNameLabel.setTextFill(Color.WHITE);
+            } else {
+                subjectNameLabel.setTextFill(Color.BLACK);
+            }
             subject.getChildren().add(subjectNameLabel);
 
             subject.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
             subjectBox.getChildren().add(subject);
         });
         return finishSubjectButton;
+    }
+
+    public boolean isDark(Color color) {
+        return (1 - (0.299 * color.getRed() + 0.587 * color.getGreen() + 0.114 * color.getBlue() / 255) >= 0.5);
     }
 
     @Override
@@ -415,7 +431,7 @@ public class LockedInnApp extends Application {
             }
             afw.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error");
         }
     }
 
@@ -438,15 +454,6 @@ public class LockedInnApp extends Application {
             this.completed = false;
         }
 
-        Assignment(String name, double progress, String subject, String data) {
-            this.name = name;
-            this.progress = progress;
-            this.subject = subject;
-            this.start = data.split(",")[0].split(" ")[1];
-            this.finish = data.split(",")[1].split(" ")[1];
-            this.dueDate = LocalDate.parse(data.split(",")[3].split(" ")[1]);
-        }
-
         @Override
         public String toString() {
             int progressPercent = (int) (progress * 100);
@@ -454,7 +461,6 @@ public class LockedInnApp extends Application {
         }
 
         public String compileInfo() {
-            int progressPercent = (int) (progress * 100);
             return completed + "=" + name + "=" + start + "=" + finish + "=" + progress + "=" + subject + "=" + dueDate;
         }
 
@@ -474,8 +480,7 @@ public class LockedInnApp extends Application {
         }
 
         @Override
-        public int compareTo(AssignmentPane other) {
-            if (other == null) return -1;
+        public int compareTo(@NotNull AssignmentPane other) {
             return this.assignment.compareTo(other.assignment);
         }
 
