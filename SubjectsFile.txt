@@ -1,4 +1,0 @@
- 1.0,1.0,1.0
-CompSci 1.0,1.0,1.0
-EnglEngEnEnglsih 1.0,1.0,1.0
-Math 0.0,0.0,0.0

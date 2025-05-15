@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6bf28748-ce74-4b46-9d78-abf1d56c9cc0" name="Changes" comment="Fixed magic numbers and set background to tavern theme">
+    <list default="true" id="6bf28748-ce74-4b46-9d78-abf1d56c9cc0" name="Changes" comment="Fixed text color for subjects">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AssignmentsFile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/AssignmentsFile.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SubjectsFile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/SubjectsFile.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/lockedinn/LockedInnApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/lockedinn/LockedInnApp.java" afterDir="false" />
     </list>
@@ -134,7 +135,8 @@
       <workItem from="1744643720006" duration="4329000" />
       <workItem from="1745894071981" duration="8532000" />
       <workItem from="1747143418068" duration="8053000" />
-      <workItem from="1747200210358" duration="1006000" />
+      <workItem from="1747200210358" duration="1098000" />
+      <workItem from="1747286011791" duration="6873000" />
     </task>
     <task id="LOCAL-00002" summary="fixed assignment editing">
       <option name="closed" value="true" />
@@ -184,7 +186,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747143848601</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Fixed text color for subjects">
+      <option name="closed" value="true" />
+      <created>1747238451750</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1747238451750</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -208,7 +218,8 @@
     <MESSAGE value="errors fixed" />
     <MESSAGE value="Edited structure of entering progress, worked on ordering assingments (Still has one bug)" />
     <MESSAGE value="Fixed magic numbers and set background to tavern theme" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed magic numbers and set background to tavern theme" />
+    <MESSAGE value="Fixed text color for subjects" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed text color for subjects" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

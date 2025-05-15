@@ -37,7 +37,6 @@ public class LockedInnApp extends Application {
     int subjectPanelHeight = 750;
     int subjectPanelWidth = 596;
     int sceneFrameHeight = 70;
-    DatePicker dateSelector = new DatePicker();
 
     public static void main(String[] args) {
         launch(args);
@@ -122,27 +121,36 @@ public class LockedInnApp extends Application {
                     AssignmentPane pane = new AssignmentPane(assignment);
                     Label detailsLabel = new Label(assignment.toString());
                     Button editButton = new Button("Edit");
-                    editButton.setOnAction(ev -> openAssignmentEditingDialog(pane, detailsLabel));
-                    CheckBox completeCheckBox = new CheckBox("Complete");
-                    completeCheckBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
-                        Assignment assignment2 = (Assignment) pane.getUserData();
-                        assignment2.completed = isNowSelected;
-                        if (isNowSelected) {
-                            detailsLabel.setStyle("-fx-text-fill: gray; -fx-strikethrough: true;");
-                        } else {
-                            detailsLabel.setStyle("");
-                        }
+                    editButton.setOnAction(ev -> {
+                        openAssignmentEditingDialog(pane, detailsLabel);
+                        assignments.getPanes().remove(pane);
                     });
                     double progressBarWidth = 150;
                     double assignmentRowSpacing = 10;
                     ProgressBar progressBar = new ProgressBar(assignment.progress);
                     progressBar.setPrefWidth(progressBarWidth);
+                    CheckBox completeCheckBox = new CheckBox("Complete");
                     HBox assignmentRow = new HBox(assignmentRowSpacing, completeCheckBox, detailsLabel, progressBar, editButton);
                     assignmentRow.setAlignment(Pos.CENTER_LEFT);
                     pane.setContent(assignmentRow);
                     Color subjectColor = subjects.get(assignment.subject);
                     if (subjectColor != null) {
                         assignmentRow.setBackground(new Background(new BackgroundFill(subjectColor, CornerRadii.EMPTY, Insets.EMPTY)));
+                    }
+                    completeCheckBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
+                        Assignment assignment2 = (Assignment) pane.getUserData();
+                        assignment2.completed = isNowSelected;
+                        if (isNowSelected) {
+                            detailsLabel.setStyle("-fx-strikethrough: true;");
+                        }
+                    });
+                    assert subjectColor != null;
+                    if (isDark(subjectColor)) {
+                        completeCheckBox.setTextFill(Color.WHITE);
+                        detailsLabel.setTextFill(Color.WHITE);
+                    } else {
+                        completeCheckBox.setTextFill(Color.BLACK);
+                        detailsLabel.setTextFill(Color.BLACK);
                     }
                     pane.setUserData(assignment);
                     pane.setText(assignment.name + " - Due Date: " + assignment.dueDate);
@@ -167,7 +175,7 @@ public class LockedInnApp extends Application {
         primaryStage.show();
     }
 
-    private GridPane createAssignmentDetailsGrid(TextField nameField, TextField startField, TextField finishField, TextField progressField, ComboBox<String> localSubjectSelector) {
+    private GridPane createAssignmentDetailsGrid(TextField nameField, TextField startField, TextField finishField, TextField progressField, ComboBox<String> localSubjectSelector, DatePicker dateSelector) {
         double gridInsets = 20;
         double gridHGap = 10;
         double gridVGap = 10;
@@ -199,7 +207,7 @@ public class LockedInnApp extends Application {
         return grid;
     }
 
-    private void showAssignmentDialog(String title, String headerText, String initialName, String initialStart, String initialFinish, String initialProgress, String subject, Consumer<Assignment> onSave) {
+    private void showAssignmentDialog(String title, String headerText, String initialName, String initialStart, String initialFinish, String initialProgress, String subject, LocalDate date, Consumer<Assignment> onSave) {
         Stage dialogStage = new Stage();
         dialogStage.setTitle(title);
         Label headerLabel = new Label(headerText);
@@ -208,13 +216,14 @@ public class LockedInnApp extends Application {
         TextField startField = new TextField(initialStart);
         TextField finishField = new TextField(initialFinish);
         TextField progressField = new TextField(initialProgress);
+        DatePicker dateSelector = new DatePicker(date);
         ComboBox<String> localSubjectSelector = new ComboBox<>();
         localSubjectSelector.getItems().addAll(subjects.keySet());
         localSubjectSelector.setVisibleRowCount(5);
         if (subject != null && !subject.isEmpty()) {
             localSubjectSelector.setValue(subject);
         }
-        GridPane grid = createAssignmentDetailsGrid(nameField, startField, finishField, progressField, localSubjectSelector);
+        GridPane grid = createAssignmentDetailsGrid(nameField, startField, finishField, progressField, localSubjectSelector, dateSelector);
         Button saveButton = new Button("Save");
 
         saveButton.setOnAction(e -> {
@@ -254,25 +263,19 @@ public class LockedInnApp extends Application {
     }
 
     private void openAssignmentCreationDialog() {
-        showAssignmentDialog("Create Assignment", "Enter Assignment Details", "", "", "", "", "", updatedAssignment -> {
+        showAssignmentDialog("Create Assignment", "Enter Assignment Details", "", "", "", "", "", LocalDate.now(), updatedAssignment -> {
             AssignmentPane pane = new AssignmentPane(updatedAssignment);
             Label detailsLabel = new Label(updatedAssignment.toString());
             Button editButton = new Button("Edit");
-            editButton.setOnAction(ev -> openAssignmentEditingDialog(pane, detailsLabel));
-            CheckBox completeCheckBox = new CheckBox("Complete");
-            completeCheckBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
-                Assignment assignment = (Assignment) pane.getUserData();
-                assignment.completed = isNowSelected;
-                if (isNowSelected) {
-                    detailsLabel.setStyle("-fx-text-fill: gray; -fx-strikethrough: true;");
-                } else {
-                    detailsLabel.setStyle("");
-                }
+            editButton.setOnAction(ev -> {
+                openAssignmentEditingDialog(pane, detailsLabel);
+                assignments.getPanes().remove(pane);
             });
+            CheckBox completeCheckBox = new CheckBox("Complete");
             double progressBarWidth = 150;
-            double assignmentRowSpacing = 10;
             ProgressBar progressBar = new ProgressBar(updatedAssignment.progress);
             progressBar.setPrefWidth(progressBarWidth);
+            double assignmentRowSpacing = 10;
             HBox assignmentRow = new HBox(assignmentRowSpacing, completeCheckBox, detailsLabel, progressBar, editButton);
             assignmentRow.setAlignment(Pos.CENTER_LEFT);
             pane.setContent(assignmentRow);
@@ -280,38 +283,67 @@ public class LockedInnApp extends Application {
             if (subjectColor != null) {
                 assignmentRow.setBackground(new Background(new BackgroundFill(subjectColor, CornerRadii.EMPTY, Insets.EMPTY)));
             }
+            completeCheckBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
+                Assignment assignment = (Assignment) pane.getUserData();
+                assignment.completed = isNowSelected;
+                if (isNowSelected) {
+                    detailsLabel.setStyle("-fx-strikethrough: true;");
+                }
+            });
+            assert subjectColor != null;
+            if (isDark(subjectColor)) {
+                completeCheckBox.setTextFill(Color.WHITE);
+                detailsLabel.setTextFill(Color.WHITE);
+            } else {
+                completeCheckBox.setTextFill(Color.BLACK);
+                detailsLabel.setTextFill(Color.BLACK);
+            }
             pane.setUserData(updatedAssignment);
             pane.setText(updatedAssignment.name + " - Due Date: " + updatedAssignment.dueDate);
             assignments.getPanes().add(pane);
         });
     }
 
-    private void openAssignmentEditingDialog(TitledPane pane, Label detailsLabel) {
-        Assignment current = (Assignment) pane.getUserData();
-        showAssignmentDialog("Edit Assignment", "Edit Assignment Details", current.name, current.start, current.finish, String.valueOf((int) (current.progress * 10)), current.subject, updatedAssignment -> {
-            AssignmentPane paneTwo = new AssignmentPane(updatedAssignment);
-            updatedAssignment.completed = (updatedAssignment.progress == 1.0);
-            paneTwo.setUserData(updatedAssignment);
-            paneTwo.setText(updatedAssignment.name + " - Due Date: " + updatedAssignment.dueDate);
-            detailsLabel.setText(updatedAssignment.toString());
+    private void openAssignmentEditingDialog(TitledPane paneTwo, Label detailsLabelTwo) {
+        Assignment current = (Assignment) paneTwo.getUserData();
+        showAssignmentDialog("Edit Assignment", "Edit Assignment Details", current.name, current.start, current.finish, String.valueOf((int) (current.progress * 10)), current.subject, current.dueDate, updatedAssignment -> {
+            AssignmentPane pane = new AssignmentPane(updatedAssignment);
+            Label detailsLabel = new Label(updatedAssignment.toString());
+            Button editButton = new Button("Edit");
+            editButton.setOnAction(ev -> {
+                openAssignmentEditingDialog(pane, detailsLabel);
+                assignments.getPanes().remove(pane);
+            });
+            CheckBox completeCheckBox = new CheckBox("Complete");
+            double progressBarWidth = 150;
+            ProgressBar progressBar = new ProgressBar(updatedAssignment.progress);
+            progressBar.setPrefWidth(progressBarWidth);
+            double assignmentRowSpacing = 10;
+            HBox assignmentRow = new HBox(assignmentRowSpacing, completeCheckBox, detailsLabel, progressBar, editButton);
+            assignmentRow.setAlignment(Pos.CENTER_LEFT);
+            pane.setContent(assignmentRow);
             Color subjectColor = subjects.get(updatedAssignment.subject);
             if (subjectColor != null) {
-                ((HBox) pane.getContent()).setBackground(new Background(new BackgroundFill(subjectColor, CornerRadii.EMPTY, Insets.EMPTY)));
+                assignmentRow.setBackground(new Background(new BackgroundFill(subjectColor, CornerRadii.EMPTY, Insets.EMPTY)));
             }
-            HBox row = (HBox) pane.getContent();
-            CheckBox completeCheckBox = (CheckBox) row.getChildren().get(0);
-            ProgressBar progressBar = (ProgressBar) row.getChildren().get(2);
-            progressBar.setProgress(updatedAssignment.progress);
-            completeCheckBox.setSelected(updatedAssignment.completed);
-            if (updatedAssignment.completed) {
-                detailsLabel.setStyle("-fx-text-fill: gray; -fx-strikethrough: true;");
+            completeCheckBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
+                Assignment assignment = (Assignment) pane.getUserData();
+                assignment.completed = isNowSelected;
+                if (isNowSelected) {
+                    detailsLabel.setStyle("-fx-strikethrough: true;");
+                }
+            });
+            assert subjectColor != null;
+            if (isDark(subjectColor)) {
+                completeCheckBox.setTextFill(Color.WHITE);
+                detailsLabel.setTextFill(Color.WHITE);
             } else {
-                detailsLabel.setStyle("");
+                completeCheckBox.setTextFill(Color.BLACK);
+                detailsLabel.setTextFill(Color.BLACK);
             }
-            paneTwo.setContent(row);
-
-            assignments.getPanes().add(paneTwo);
-            assignments.getPanes().remove(pane);
+            pane.setUserData(updatedAssignment);
+            pane.setText(updatedAssignment.name + " - Due Date: " + updatedAssignment.dueDate);
+            assignments.getPanes().add(pane);
         });
     }
 
